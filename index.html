@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Baloo+2:wght@500;600;700;800&amp;family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #f2ece0; }
+  a { color: var(--accent, #2a6fb0); }
+  a:hover { color: var(--accent-dark, #1f5a92); }
+  @keyframes pop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes fadeup { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  input[type=range]{ -webkit-appearance:none; appearance:none; height:14px; border-radius:99px; background:var(--line,#ddd4c6); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:38px; height:38px; border-radius:50%; background:var(--accent,#2a6fb0); border:4px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.25); cursor:pointer; }
+  input[type=range]::-moz-range-thumb{ width:38px; height:38px; border-radius:50%; background:var(--accent,#2a6fb0); border:4px solid #fff; cursor:pointer; }
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="min-height:100vh; background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-family:'Baloo 2','Public Sans',system-ui,sans-serif; line-height:1.5;">
+    <sc-if value="{{ notPrinting }}" hint-placeholder-val="{{ true }}">
+
+    <!-- HEADER -->
+    <header style="position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:20px; padding:16px 28px; background:var(--surface,#fbf8f2); border-bottom:2px solid var(--line,#ddd4c6);">
+      <button onClick="{{ navHome }}" aria-label="Home" style="display:flex; align-items:center; gap:12px; background:none; border:none; cursor:pointer; padding:0; color:inherit;">
+        <span style="display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; font-weight:700; font-size:1.25em;">道</span>
+      </button>
+
+      <nav style="display:flex; gap:6px; margin-left:8px;">
+        <button onClick="{{ navHome }}" style="background:none; border:none; cursor:pointer; padding:12px 16px; border-radius:10px; font-size:1.05em; font-weight:600; color:inherit; font-family:inherit;" style-hover="{{ navHoverStyle }}">Home</button>
+        <button onClick="{{ navLib }}" style="background:none; border:none; cursor:pointer; padding:12px 16px; border-radius:10px; font-size:1.05em; font-weight:600; color:inherit; font-family:inherit;" style-hover="{{ navHoverStyle }}">Video Library</button>
+        <button onClick="{{ navAbout }}" style="background:none; border:none; cursor:pointer; padding:12px 16px; border-radius:10px; font-size:1.05em; font-weight:600; color:inherit; font-family:inherit;" style-hover="{{ navHoverStyle }}">About Us</button>
+        <button onClick="{{ navBlog }}" style="background:none; border:none; cursor:pointer; padding:12px 16px; border-radius:10px; font-size:1.05em; font-weight:600; color:inherit; font-family:inherit;" style-hover="{{ navHoverStyle }}">Blog</button>
+      </nav>
+
+      <div style="margin-left:auto; display:flex; align-items:center; gap:14px;">
+        <div style="display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--accent-soft,#e6eef6);">
+          <button onClick="{{ setLight }}" style="{{ segLight }}" title="Light" aria-label="Light theme"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8"></path></svg></button>
+          <button onClick="{{ setDark }}" style="{{ segDark }}" title="Dark" aria-label="Dark theme"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a7 7 0 100 16 8 8 0 0010.5-5.5z"></path></svg></button>
+          <button onClick="{{ setSystem }}" style="{{ segSystem }}" title="Auto (match system)" aria-label="Auto theme"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"></rect><path d="M8 20h8M12 16v4"></path></svg></button>
+        </div>
+        <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+          <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:99px; background:var(--accent-soft,#e6eef6); color:var(--accent-dark,#1f5a92); font-weight:600; font-size:0.95em;">Your track: {{ tier }}</span>
+          <button onClick="{{ toggleNotifs }}" aria-label="Notifications" style="position:relative; display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+            <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute; top:-6px; right:-6px; min-width:22px; height:22px; padding:0 5px; border-radius:99px; background:#c0442f; color:#fff; font-size:0.78em; font-weight:800; display:flex; align-items:center; justify-content:center; border:2px solid var(--surface,#fbf8f2);">{{ unreadCount }}</span>
+            </sc-if>
+          </button>
+        </sc-if>
+        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ navLogin }}" style="padding:12px 20px; border-radius:12px; background:transparent; color:var(--fg,#2c2824); border:2px solid var(--line,#ddd4c6); cursor:pointer; font-size:1.05em; font-weight:700; font-family:inherit; min-height:52px; white-space:nowrap;">Log in</button>
+        </sc-if>
+        <button onClick="{{ toggleAccess }}" style="display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.05em; font-weight:700; font-family:inherit; min-height:52px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="8" r="1.4" fill="currentColor" stroke="none"></circle><path d="M12 11v6"></path></svg>
+          Accessibility
+        </button>
+      </div>
+    </header>
+
+    <!-- ACCESSIBILITY PANEL -->
+    <sc-if value="{{ accessOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; top:88px; right:24px; z-index:60; width:340px; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.22); padding:22px; animation:fadeup .18s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <strong style="font-size:1.2em;">Accessibility</strong>
+          <button onClick="{{ toggleAccess }}" style="background:none; border:none; cursor:pointer; font-size:1.4em; line-height:1; color:var(--muted,#6b635a); padding:4px 8px;">✕</button>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div style="font-weight:600; margin-bottom:8px;">Text size</div>
+          <div style="display:flex; gap:10px;">
+            <button onClick="{{ setScaleS }}" style="{{ scaleBtnS }}">A</button>
+            <button onClick="{{ setScaleM }}" style="{{ scaleBtnM }}">A</button>
+            <button onClick="{{ setScaleL }}" style="{{ scaleBtnL }}">A</button>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-top:1px solid var(--line,#ddd4c6);">
+          <div>
+            <div style="font-weight:600;">High contrast</div>
+            <div style="font-size:0.9em; color:var(--muted,#6b635a);">Maximum legibility</div>
+          </div>
+          <button onClick="{{ toggleHc }}" style="{{ hcToggleStyle }}"><span style="{{ hcKnobStyle }}"></span></button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-top:1px solid var(--line,#ddd4c6);">
+          <div>
+            <div style="font-weight:600;">Read aloud</div>
+            <div style="font-size:0.9em; color:var(--muted,#6b635a);">Speak page headings</div>
+          </div>
+          <button onClick="{{ toggleTts }}" style="{{ ttsToggleStyle }}"><span style="{{ ttsKnobStyle }}"></span></button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- NOTIFICATIONS PANEL -->
+    <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeNotifs }}" style="position:fixed; inset:0; z-index:59;"></div>
+      <div style="position:fixed; top:88px; right:24px; z-index:60; width:400px; max-width:calc(100vw - 32px); background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.22); overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--line,#ddd4c6);">
+          <strong style="font-size:1.2em;">Notifications</strong>
+          <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ markAllRead }}" style="background:none; border:none; cursor:pointer; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:0.95em; font-family:inherit;">Mark all read</button>
+          </sc-if>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto;">
+          <sc-for list="{{ notifList }}" as="n" hint-placeholder-count="2">
+            <button onClick="{{ n.open }}" style="{{ n.rowStyle }}">
+              <span style="flex:none; width:40px; height:40px; border-radius:10px; background:var(--accent-soft,#e6eef6); color:var(--accent,#2a6fb0); display:flex; align-items:center; justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+              </span>
+              <span style="flex:1; min-width:0;">
+                <span style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><strong style="font-size:1.02em;">{{ n.title }}</strong><span style="{{ n.badgeStyle }}">{{ n.badge }}</span></span>
+                <span style="display:block; color:var(--muted,#6b635a); font-size:0.95em; margin-top:2px;">{{ n.reason }} · {{ n.time }}</span>
+                <sc-if value="{{ n.locked }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block; margin-top:4px; color:#9a7420; font-weight:700; font-size:0.9em;">🔒 Upgrade to watch</span></sc-if>
+              </span>
+              <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="flex:none; width:10px; height:10px; border-radius:50%; background:var(--accent,#2a6fb0); margin-top:6px;"></span></sc-if>
+            </button>
+          </sc-for>
+          <sc-if value="{{ hasNotifs }}" hint-placeholder-val="{{ true }}"><span></span></sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- UPGRADE / PLAN MODAL -->
+    <sc-if value="{{ upgradeOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeUpgrade }}" style="position:fixed; inset:0; z-index:90; background:rgba(20,17,14,.55); display:flex; align-items:center; justify-content:center; padding:24px;">
+        <div onClick="{{ stopProp }}" style="width:840px; max-width:100%; max-height:90vh; overflow-y:auto; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:22px; padding:34px; animation:fadeup .2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px;">
+            <h2 style="margin:0; font-size:1.8em;">Choose your plan</h2>
+            <button onClick="{{ closeUpgrade }}" style="background:none; border:none; cursor:pointer; font-size:1.6em; line-height:1; color:var(--muted,#6b635a); padding:4px 8px;">✕</button>
+          </div>
+          <sc-if value="{{ hasLockedTitle }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:12px; align-items:flex-start; background:#fbf3e8; border:2px solid #e8d3b0; border-radius:14px; padding:16px 18px; margin:8px 0 20px;">
+              <span style="font-size:1.3em;">🔒</span>
+              <p style="margin:0; color:#7a5a2a; font-size:1.05em;"><strong>{{ lockedTitle }}</strong> is a {{ lockedAccess }} video. Upgrade to <strong>{{ neededPlan }}</strong> or higher to watch it.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasLockedTitle }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:6px 0 22px; color:var(--muted,#6b635a); font-size:1.1em;">Upgrade any time to unlock more videos. You can change or cancel whenever you like.</p>
+          </sc-if>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px;">
+            <sc-for list="{{ planCards }}" as="p" hint-placeholder-count="3">
+              <div style="{{ p.cardStyle }}">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <h3 style="margin:0; font-size:1.4em;">{{ p.name }}</h3>
+                  <sc-if value="{{ p.current }}" hint-placeholder-val="{{ false }}"><span style="padding:3px 10px; border-radius:99px; background:var(--accent,#2a6fb0); color:#fff; font-weight:700; font-size:0.78em;">Current</span></sc-if>
+                </div>
+                <div style="font-size:1.6em; font-weight:800; color:var(--accent-dark,#1f5a92); margin:2px 0 10px;">{{ p.price }}</div>
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+                  <sc-for list="{{ p.perks }}" as="perk" hint-placeholder-count="3">
+                    <span style="display:flex; gap:8px; align-items:flex-start; font-size:1em;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success,#3f7d5c)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none; margin-top:3px;"><path d="M20 6L9 17l-5-5"></path></svg>{{ perk }}</span>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ p.current }}" hint-placeholder-val="{{ false }}">
+                  <button disabled="true" style="margin-top:auto; padding:14px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--muted,#6b635a); font-weight:700; font-family:inherit; min-height:52px; cursor:default;">Your current plan</button>
+                </sc-if>
+                <sc-if value="{{ p.notCurrent }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ p.choose }}" style="margin-top:auto; padding:14px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-weight:700; font-size:1.05em; font-family:inherit; min-height:52px;">Switch to {{ p.name }}</button>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ LANDING ============ -->
+    <sc-if value="{{ onLanding }}" hint-placeholder-val="{{ true }}">
+      <main>
+        <section style="max-width:1180px; margin:0 auto; padding:72px 28px 48px; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;">
+          <div style="animation:fadeup .4s ease;">
+            <span style="display:inline-block; padding:8px 16px; border-radius:99px; background:var(--accent-soft,#e6eef6); color:var(--accent-dark,#1f5a92); font-weight:600; font-size:1em; margin-bottom:22px;">Gentle martial arts for a stronger, steadier you</span>
+            <h1 style="font-size:3.3em; line-height:1.08; letter-spacing:-0.02em; margin:0 0 20px; font-weight:700;">Move with confidence, at your own pace.</h1>
+            <p style="font-size:1.35em; color:var(--muted,#6b635a); margin:0 0 34px; max-width:34ch;">Balance, breathing, and safe self-defense — taught slowly and clearly, designed for older adults practicing at home.</p>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+              <button onClick="{{ startIntake }}" style="padding:20px 34px; border-radius:14px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.25em; font-weight:700; font-family:inherit; min-height:64px;">Begin — it's free</button>
+              <button onClick="{{ navLib }}" style="padding:20px 34px; border-radius:14px; background:transparent; color:var(--fg,#2c2824); border:2px solid var(--line,#ddd4c6); cursor:pointer; font-size:1.25em; font-weight:600; font-family:inherit; min-height:64px;">Browse videos</button>
+            </div>
+            <p style="margin:24px 0 0; color:var(--muted,#6b635a); font-size:1.05em;">Already have an account? <button onClick="{{ navLogin }}" style="background:none; border:none; padding:0; cursor:pointer; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1em; font-family:inherit; text-decoration:underline; text-underline-offset:3px;">Log in here</button> — no passwords to remember.</p>
+          </div>
+          <div style="border-radius:20px; overflow:hidden; border:2px solid var(--line,#ddd4c6); background:var(--ph); aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;">
+            <span style="font-family:ui-monospace,monospace; font-size:0.95em; color:#8a7f6f; background:rgba(251,248,242,.85); padding:10px 16px; border-radius:8px;">[ warm photo — senior practicing ]</span>
+          </div>
+        </section>
+
+        <section style="max-width:1180px; margin:0 auto; padding:12px 28px 80px;">
+          <div onMouseEnter="{{ pauseCarousel }}" onMouseLeave="{{ resumeCarousel }}" style="position:relative; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:24px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.08);">
+            <!-- slide viewport -->
+            <div style="position:relative; height:420px;">
+              <sc-for list="{{ features }}" as="f" hint-placeholder-count="3">
+                <div style="{{ f.slideStyle }}">
+                  <div style="display:grid; grid-template-columns:1fr 1fr; height:100%;">
+                    <!-- video side -->
+                    <div style="background:var(--ph); position:relative; display:flex; align-items:center; justify-content:center;">
+                      <button onClick="{{ navLib }}" style="width:82px; height:82px; border-radius:50%; background:rgba(251,248,242,.94); display:flex; align-items:center; justify-content:center; color:var(--accent,#2a6fb0); border:none; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.2);"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></button>
+                      <span style="position:absolute; bottom:18px; left:18px; font-family:ui-monospace,monospace; font-size:0.82em; color:#8a7f6f; background:rgba(251,248,242,.85); padding:6px 12px; border-radius:8px;">{{ f.clip }}</span>
+                    </div>
+                    <!-- detail side -->
+                    <div style="padding:48px 46px; display:flex; flex-direction:column; justify-content:center;">
+                      <span style="display:inline-flex; align-items:center; gap:10px; margin-bottom:18px;">
+                        <span style="width:48px; height:48px; border-radius:13px; background:var(--accent-soft,#e6eef6); display:flex; align-items:center; justify-content:center; color:var(--accent-dark,#1f5a92); font-size:1.4em; font-weight:700;">{{ f.icon }}</span>
+                        <span style="color:var(--muted,#6b635a); font-weight:600; letter-spacing:0.04em; text-transform:uppercase; font-size:0.9em;">{{ f.kicker }}</span>
+                      </span>
+                      <h3 style="margin:0 0 14px; font-size:2.1em; line-height:1.12;">{{ f.title }}</h3>
+                      <p style="margin:0 0 22px; color:var(--muted,#6b635a); font-size:1.25em; max-width:34ch;">{{ f.desc }}</p>
+                      <button onClick="{{ f.cta }}" style="align-self:flex-start; display:inline-flex; align-items:center; gap:10px; padding:14px 26px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.1em; font-weight:700; font-family:inherit; min-height:54px;">{{ f.ctaLabel }} <span style="font-size:1.2em;">→</span></button>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- prev / next -->
+            <button onClick="{{ prevFeature }}" aria-label="Previous" style="position:absolute; top:calc(210px - 26px); left:16px; width:52px; height:52px; border-radius:50%; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--fg,#2c2824); box-shadow:0 4px 14px rgba(0,0,0,.12);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+            <button onClick="{{ nextFeature }}" aria-label="Next" style="position:absolute; top:calc(210px - 26px); right:16px; width:52px; height:52px; border-radius:50%; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--fg,#2c2824); box-shadow:0 4px 14px rgba(0,0,0,.12);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+          </div>
+
+          <!-- dots -->
+          <div style="display:flex; justify-content:center; gap:12px; margin-top:24px;">
+            <sc-for list="{{ features }}" as="f" hint-placeholder-count="3">
+              <button onClick="{{ f.goto }}" aria-label="Go to slide" style="{{ f.dotStyle }}"></button>
+            </sc-for>
+          </div>
+        </section>
+
+        <!-- §3 TESTIMONIALS -->
+        <section style="max-width:1180px; margin:0 auto; padding:56px 28px 40px;">
+          <div style="position:relative; text-align:center; margin-bottom:44px;">
+            <span style="position:absolute; left:8%; top:-10px; width:56px; height:56px; border-radius:50%; background:#8fc0e6; display:flex; align-items:center; justify-content:center;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#204a6b" stroke-width="2.4" stroke-linecap="round"><path d="M8 14c1.2 1.4 2.5 2 4 2s2.8-.6 4-2"></path></svg></span>
+            <span style="position:absolute; right:10%; top:-4px; width:48px; height:48px; border-radius:50%; background:#e9b56a; display:flex; align-items:center; justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b4a1c" stroke-width="2.4" stroke-linecap="round"><path d="M8 14c1.2 1.4 2.5 2 4 2s2.8-.6 4-2"></path></svg></span>
+            <span style="position:absolute; right:26%; bottom:-18px; width:44px; height:44px; border-radius:50%; background:#8fc7a0; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#245036" stroke-width="2.4" stroke-linecap="round"><path d="M8 14c1.2 1.4 2.5 2 4 2s2.8-.6 4-2"></path></svg></span>
+            <h2 style="font-family:'Baloo 2','Public Sans',sans-serif; font-weight:800; font-size:3em; line-height:1.08; margin:0 auto; max-width:20ch; letter-spacing:-0.01em;">Members are enjoying happier, steadier lives</h2>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:34px 30px; display:flex; flex-direction:column;">
+              <p style="font-size:1.5em; line-height:1.4; margin:0 0 28px;">“I feel steadier on my feet than I have in years. I actually trust my balance again.”</p>
+              <span style="margin-top:auto; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1.02em;">Member on rebuilding balance</span>
+            </div>
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:34px 30px; display:flex; flex-direction:column;">
+              <p style="font-size:1.5em; line-height:1.4; margin:0 0 28px;">“The seated sessions meant I could start the very first day. Nothing felt out of reach.”</p>
+              <span style="margin-top:auto; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1.02em;">Member on starting from a chair</span>
+            </div>
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:34px 30px; display:flex; flex-direction:column;">
+              <p style="font-size:1.5em; line-height:1.4; margin:0 0 28px;">“Ten quiet minutes each morning. My breathing is calmer and my mind is clearer.”</p>
+              <span style="margin-top:auto; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1.02em;">Member on a daily habit</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- §4 EXPLORE OUR LIBRARY -->
+        <section style="max-width:1180px; margin:0 auto; padding:48px 28px 90px;">
+          <h2 style="font-family:'Baloo 2','Public Sans',sans-serif; font-weight:800; font-size:2.8em; text-align:center; margin:0 0 26px; letter-spacing:-0.01em;">Explore our library</h2>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:30px;">
+            <sc-for list="{{ exploreChips }}" as="chip" hint-placeholder-count="5">
+              <button onClick="{{ chip.choose }}" style="{{ chip.style }}">{{ chip.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:22px;">
+            <sc-for list="{{ exploreCards }}" as="card" hint-placeholder-count="4">
+              <button onClick="{{ card.open }}" style="{{ card.style }}">
+                <sc-if value="{{ card.hasBadge }}" hint-placeholder-val="{{ true }}">
+                  <span style="position:absolute; top:16px; left:16px; padding:5px 13px; border-radius:99px; background:rgba(255,255,255,.92); color:#2c2824; font-weight:700; font-size:0.85em;">{{ card.badge }}</span>
+                </sc-if>
+                <div style="margin-top:auto;">
+                  <h3 style="font-family:'Baloo 2','Public Sans',sans-serif; font-weight:700; margin:0 0 8px; font-size:1.5em; line-height:1.15; color:#fff;">{{ card.title }}</h3>
+                  <p style="margin:0; color:rgba(255,255,255,.9); font-size:1.02em;">{{ card.sub }}</p>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </main>
+    </sc-if>
+
+    <!-- ============ INTAKE WIZARD ============ -->
+    <sc-if value="{{ onIntake }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:760px; margin:0 auto; padding:48px 28px 80px;">
+        <div style="height:12px; border-radius:99px; background:var(--line,#ddd4c6); overflow:hidden; margin-bottom:12px;">
+          <div style="{{ intakeBarStyle }}"></div>
+        </div>
+        <p style="text-align:center; color:var(--muted,#6b635a); font-weight:600; margin:0 0 30px;">{{ intakeProgress }}</p>
+
+        <sc-if value="{{ intakeWelcome }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:52px 40px; animation:fadeup .3s ease;">
+            <h1 style="font-size:2.4em; margin:0 0 16px;">Let's find your safe starting point</h1>
+            <p style="font-size:1.25em; color:var(--muted,#6b635a); margin:0 auto 34px; max-width:44ch;">A few simple questions help us pick movements that are right for your body today. Nothing is shared, and you can change your answers anytime.</p>
+            <button onClick="{{ intakeNext }}" style="padding:18px 40px; border-radius:14px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.2em; font-weight:700; font-family:inherit; min-height:60px;">Start the check-in</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ intakeQuestioning }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:40px; animation:fadeup .25s ease;">
+            <h2 style="font-size:1.9em; margin:0 0 26px; line-height:1.2;">{{ question.text }}</h2>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <sc-for list="{{ question.options }}" as="opt" hint-placeholder-count="3">
+                <button onClick="{{ opt.choose }}" style="{{ opt.style }}">
+                  <span style="{{ opt.dotStyle }}"></span>
+                  <span>{{ opt.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:16px; margin-top:32px;">
+              <button onClick="{{ intakeBack }}" style="padding:16px 28px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer; font-size:1.1em; font-weight:600; font-family:inherit; min-height:56px;">Back</button>
+              <button onClick="{{ intakeNext }}" style="{{ nextBtnStyle }}">Continue</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ intakeResult }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:48px 40px; text-align:center; animation:fadeup .3s ease;">
+            <div style="width:88px; height:88px; border-radius:50%; background:var(--success-soft,#e2efe8); display:flex; align-items:center; justify-content:center; margin:0 auto 22px; animation:pop .5s ease;">
+              <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="var(--success,#3f7d5c)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            </div>
+            <p style="color:var(--muted,#6b635a); font-weight:600; margin:0 0 6px; font-size:1.05em;">Your recommended track</p>
+            <h1 style="font-size:2.5em; margin:0 0 14px;">{{ tier }}</h1>
+            <p style="font-size:1.25em; color:var(--muted,#6b635a); margin:0 auto 22px; max-width:46ch;">{{ tierDesc }}</p>
+            <sc-if value="{{ tierLocked }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:12px; align-items:flex-start; text-align:left; background:#fbf3e8; border:2px solid #e8d3b0; border-radius:14px; padding:18px 20px; margin:0 0 28px;">
+                <span style="font-size:1.4em;">🔒</span>
+                <p style="margin:0; font-size:1.08em; color:#7a5a2a;">For your safety, high-intensity videos are locked. We've prepared a gentle seated curriculum you can build from. Talk to your doctor before increasing intensity.</p>
+              </div>
+            </sc-if>
+            <div style="border-top:2px solid var(--line,#ddd4c6); margin-top:8px; padding-top:30px; text-align:left;">
+              <h2 style="margin:0 0 8px; font-size:1.6em; text-align:center;">Create your free account to save this</h2>
+              <p style="margin:0 auto 22px; color:var(--muted,#6b635a); font-size:1.15em; text-align:center; max-width:46ch;">You're all set! Sign up now and your personalized dashboard opens right away — with your track, today's session, and your streak. We'll email you a magic link, so there's no password to remember.</p>
+              <label style="display:block; font-weight:600; margin-bottom:8px; font-size:1.05em;">Your email address</label>
+              <input type="email" placeholder="you@example.com" style="width:100%; padding:16px 18px; border-radius:12px; border:2px solid var(--line,#ddd4c6); background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-size:1.15em; font-family:inherit; margin-bottom:16px; box-sizing:border-box;">
+              <button onClick="{{ finishIntake }}" style="width:100%; padding:18px 40px; border-radius:14px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.2em; font-weight:700; font-family:inherit; min-height:62px;">Sign up &amp; open my dashboard →</button>
+              <p style="margin:14px 0 0; text-align:center; color:var(--muted,#6b635a); font-size:0.98em;">Free forever. Your health answers stay private.</p>
+            </div>
+          </div>
+        </sc-if>
+      </main>
+    </sc-if>
+
+    <!-- ============ DASHBOARD ============ -->
+    <sc-if value="{{ onDashboard }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:1180px; margin:0 auto; padding:44px 28px 80px;">
+        <h1 style="font-size:2.4em; margin:0 0 6px;">Good afternoon, Margaret.</h1>
+        <p style="font-size:1.25em; color:var(--muted,#6b635a); margin:0 0 30px;">Here's how your practice is going. Take it slow and enjoy it.</p>
+
+        <!-- STAT CARDS -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:24px;">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:24px;">
+            <div style="color:var(--muted,#6b635a); font-weight:600; font-size:1em; margin-bottom:8px;">Current streak</div>
+            <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:2.8em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">3</span><span style="color:var(--muted,#6b635a); font-size:1.05em;">days</span></div>
+          </div>
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:24px;">
+            <div style="color:var(--muted,#6b635a); font-weight:600; font-size:1em; margin-bottom:8px;">Minutes this month</div>
+            <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:2.8em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">340</span><span style="color:var(--muted,#6b635a); font-size:1.05em;">min</span></div>
+          </div>
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:24px;">
+            <div style="color:var(--muted,#6b635a); font-weight:600; font-size:1em; margin-bottom:8px;">Sessions done</div>
+            <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:2.8em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">24</span><span style="color:var(--muted,#6b635a); font-size:1.05em;">total</span></div>
+          </div>
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:24px;">
+            <div style="color:var(--muted,#6b635a); font-weight:600; font-size:1em; margin-bottom:8px;">Lessons complete</div>
+            <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:2.8em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">8</span><span style="color:var(--muted,#6b635a); font-size:1.05em;">of 30</span></div>
+          </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div style="display:grid; grid-template-columns:1.55fr 1fr; gap:24px; margin-bottom:24px;">
+          <!-- line chart -->
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:28px;">
+            <h2 style="margin:0 0 4px; font-size:1.4em;">Practice minutes</h2>
+            <p style="margin:0 0 18px; color:var(--muted,#6b635a); font-size:1.05em;">Weekly minutes over the last 8 weeks — steady and rising.</p>
+            <svg viewBox="0 0 720 260" style="width:100%; height:auto; overflow:visible;" data-om-raster="true">
+              <line x1="48" y1="20" x2="48" y2="210" stroke="var(--line,#ddd4c6)" stroke-width="2"></line>
+              <line x1="48" y1="210" x2="705" y2="210" stroke="var(--line,#ddd4c6)" stroke-width="2"></line>
+              <line x1="48" y1="115" x2="705" y2="115" stroke="var(--line,#ddd4c6)" stroke-width="1" stroke-dasharray="4 6"></line>
+              <line x1="48" y1="20" x2="705" y2="20" stroke="var(--line,#ddd4c6)" stroke-width="1" stroke-dasharray="4 6"></line>
+              <text x="38" y="215" text-anchor="end" font-size="14" fill="var(--muted,#6b635a)" font-family="Baloo 2,sans-serif">0</text>
+              <text x="38" y="120" text-anchor="end" font-size="14" fill="var(--muted,#6b635a)" font-family="Baloo 2,sans-serif">35</text>
+              <text x="38" y="25" text-anchor="end" font-size="14" fill="var(--muted,#6b635a)" font-family="Baloo 2,sans-serif">70</text>
+              <path d="{{ lineArea }}" fill="var(--accent,#2a6fb0)" opacity="0.14"></path>
+              <polyline points="{{ linePoints }}" fill="none" stroke="var(--accent,#2a6fb0)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <sc-for list="{{ lineDots }}" as="d" hint-placeholder-count="8">
+                <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="6" fill="var(--surface,#fbf8f2)" stroke="var(--accent,#2a6fb0)" stroke-width="3"></circle>
+              </sc-for>
+              <sc-for list="{{ lineLabels }}" as="l" hint-placeholder-count="8">
+                <text x="{{ l.x }}" y="238" text-anchor="middle" font-size="14" fill="var(--muted,#6b635a)" font-family="Baloo 2,sans-serif">{{ l.label }}</text>
+              </sc-for>
+            </svg>
+          </div>
+
+          <!-- donut chart -->
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:28px;">
+            <h2 style="margin:0 0 4px; font-size:1.4em;">Practice by focus</h2>
+            <p style="margin:0 0 12px; color:var(--muted,#6b635a); font-size:1.05em;">Where your time has gone.</p>
+            <div style="position:relative; width:190px; margin:0 auto 18px;">
+              <svg viewBox="0 0 200 200" style="width:190px; height:190px;" data-om-raster="true">
+                <sc-for list="{{ donutSegs }}" as="seg" hint-placeholder-count="4">
+                  <circle cx="100" cy="100" r="70" fill="none" stroke="{{ seg.color }}" stroke-width="28" stroke-dasharray="{{ seg.dash }}" stroke-dashoffset="{{ seg.offset }}" transform="rotate(-90 100 100)"></circle>
+                </sc-for>
+              </svg>
+              <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+                <span style="font-size:1.9em; font-weight:700; color:var(--fg,#2c2824); line-height:1;">340</span>
+                <span style="color:var(--muted,#6b635a); font-size:0.95em;">minutes</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <sc-for list="{{ donutSegs }}" as="seg" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="width:14px; height:14px; border-radius:4px; flex-shrink:0; background:{{ seg.color }};"></span>
+                  <span style="flex:1; font-size:1.05em;">{{ seg.label }}</span>
+                  <span style="font-weight:700; color:var(--muted,#6b635a);">{{ seg.pctLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- today session + mood -->
+        <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:24px; margin-bottom:40px;">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; overflow:hidden; display:flex; flex-direction:column;">
+            <div style="height:180px; background:var(--ph); display:flex; align-items:center; justify-content:center; position:relative;">
+              <span style="font-family:ui-monospace,monospace; font-size:0.9em; color:#8a7f6f; background:rgba(251,248,242,.85); padding:8px 14px; border-radius:8px;">[ session thumbnail ]</span>
+              <span style="position:absolute; top:16px; left:16px; padding:6px 14px; border-radius:99px; background:var(--accent,#2a6fb0); color:#fff; font-weight:600; font-size:0.95em;">Today's suggested session</span>
+            </div>
+            <div style="padding:26px;">
+              <h2 style="margin:0 0 8px; font-size:1.5em;">Seated Balance &amp; Breathing</h2>
+              <p style="margin:0 0 18px; color:var(--muted,#6b635a); font-size:1.05em;">Gentle · Seated in chair · 12 minutes · Balance</p>
+              <button onClick="{{ openFeatured }}" style="display:inline-flex; align-items:center; gap:12px; padding:15px 28px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.1em; font-weight:700; font-family:inherit; min-height:56px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+                Continue watching
+              </button>
+            </div>
+          </div>
+
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:28px; display:flex; flex-direction:column;">
+            <h2 style="margin:0 0 6px; font-size:1.35em;">How is your body feeling today?</h2>
+            <p style="margin:0 0 22px; color:var(--muted,#6b635a); font-size:1.02em;">Check in before you begin.</p>
+            <input type="range" min="1" max="5" step="1" value="{{ mood }}" onChange="{{ setMood }}" style="width:100%;">
+            <div style="display:flex; justify-content:space-between; margin-top:12px; color:var(--muted,#6b635a); font-size:0.98em;">
+              <span>Stiff</span><span>Okay</span><span>Ready</span>
+            </div>
+            <p style="margin:auto 0 0; padding-top:18px; font-size:1.2em; font-weight:600; text-align:center; color:var(--accent-dark,#1f5a92);">{{ moodLabel }}</p>
+          </div>
+        </div>
+
+        <!-- PLAN + SUBSCRIPTIONS -->
+        <div style="display:grid; grid-template-columns:1fr 1.35fr; gap:24px; margin-bottom:40px;">
+          <!-- access level card -->
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:28px; display:flex; flex-direction:column;">
+            <h2 style="margin:0 0 6px; font-size:1.35em;">Your access level</h2>
+            <p style="margin:0 0 16px; color:var(--muted,#6b635a); font-size:1.02em;">Controls which videos you can watch.</p>
+            <span style="{{ planBadgeStyle }}">{{ planLabel }} plan</span>
+            <p style="margin:14px 0 20px; color:var(--muted,#6b635a); font-size:1.02em;">{{ planDesc }}</p>
+            <sc-if value="{{ isPremiumPlan }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:auto 0 0; padding:14px 16px; border-radius:12px; background:var(--success-soft,#e2efe8); color:var(--success,#3f7d5c); font-weight:700; font-size:1.02em;">✓ You have full access to every video.</p>
+            </sc-if>
+            <button onClick="{{ openUpgrade }}" style="margin-top:auto; display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 26px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.08em; font-weight:700; font-family:inherit; min-height:56px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+              Manage / upgrade plan
+            </button>
+          </div>
+
+          <!-- subscriptions card -->
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:28px;">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+              <h2 style="margin:0 0 4px; font-size:1.35em;">Your subscriptions</h2>
+              <span style="color:var(--muted,#6b635a); font-weight:600;">{{ subCount }} active</span>
+            </div>
+            <p style="margin:0 0 18px; color:var(--muted,#6b635a); font-size:1.02em;">Follow what you like — we'll notify you when new videos are added.</p>
+
+            <div style="font-weight:700; margin-bottom:10px; font-size:1.05em;">Skills &amp; categories</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+              <sc-for list="{{ subCategories }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.toggle }}" style="{{ c.style }}">{{ c.mark }} {{ c.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-weight:700; margin-bottom:10px; font-size:1.05em;">Masters</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+              <sc-for list="{{ subMasters }}" as="m" hint-placeholder-count="3">
+                <button onClick="{{ m.toggle }}" style="{{ m.style }}">{{ m.mark }} {{ m.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-weight:700; margin-bottom:10px; font-size:1.05em;">Levels</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <sc-for list="{{ subLevels }}" as="l" hint-placeholder-count="3">
+                <button onClick="{{ l.toggle }}" style="{{ l.style }}">{{ l.mark }} {{ l.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW FOR YOU -->
+        <sc-if value="{{ hasNewForYou }}" hint-placeholder-val="{{ true }}">
+          <h2 style="font-size:2em; margin:0 0 6px;">New for you</h2>
+          <p style="font-size:1.15em; color:var(--muted,#6b635a); margin:0 0 22px;">Fresh videos matched to the skills, masters, and levels you follow.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-bottom:40px;">
+            <sc-for list="{{ newForYou }}" as="v" hint-placeholder-count="3">
+              <button onClick="{{ v.open }}" style="text-align:left; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; cursor:pointer; padding:0; color:inherit; font-family:inherit; display:flex; flex-direction:column;" style-hover="{{ cardHover }}">
+                <div style="height:150px; background:var(--ph); position:relative; display:flex; align-items:center; justify-content:center;">
+                  <span style="position:absolute; top:12px; right:12px; padding:5px 12px; border-radius:99px; background:rgba(44,40,36,.78); color:#fff; font-weight:600; font-size:0.9em;">{{ v.duration }}</span>
+                  <span style="{{ v.posBadgeStyle }}">{{ v.badge }}</span>
+                  <sc-if value="{{ v.locked }}" hint-placeholder-val="{{ false }}">
+                    <span style="width:52px; height:52px; border-radius:50%; background:rgba(44,40,36,.72); display:flex; align-items:center; justify-content:center; color:#fff;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 018 0v3"></path></svg></span>
+                  </sc-if>
+                  <sc-if value="{{ v.unlocked }}" hint-placeholder-val="{{ true }}">
+                    <span style="width:52px; height:52px; border-radius:50%; background:rgba(251,248,242,.92); display:flex; align-items:center; justify-content:center; color:var(--accent,#2a6fb0);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+                  </sc-if>
+                </div>
+                <div style="padding:18px 20px 22px; display:flex; flex-direction:column; gap:6px; flex:1;">
+                  <h3 style="margin:0; font-size:1.2em; line-height:1.25;">{{ v.title }}</h3>
+                  <p style="margin:0; color:var(--muted,#6b635a); font-size:0.98em;">{{ v.master }}</p>
+                  <span style="display:inline-flex; align-items:center; gap:6px; margin-top:4px; color:var(--accent-dark,#1f5a92); font-weight:600; font-size:0.92em;">🔔 {{ v.reason }}</span>
+                  <sc-if value="{{ v.locked }}" hint-placeholder-val="{{ false }}">
+                    <span style="margin-top:6px; color:#9a7420; font-weight:700; font-size:0.95em;">🔒 Upgrade to watch</span>
+                  </sc-if>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- MY LIBRARY -->
+        <h2 style="font-size:2em; margin:0 0 6px;">My Library</h2>
+        <p style="font-size:1.15em; color:var(--muted,#6b635a); margin:0 0 22px;">Your subscribed courses and saved videos, all in one place.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px;">
+          <sc-for list="{{ libTabs }}" as="tab" hint-placeholder-count="3">
+            <button onClick="{{ tab.choose }}" style="{{ tab.style }}">{{ tab.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:22px;">
+          <sc-for list="{{ myLibItems }}" as="v" hint-placeholder-count="3">
+            <button onClick="{{ v.open }}" style="text-align:left; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; cursor:pointer; padding:0; color:inherit; font-family:inherit; display:flex; flex-direction:column;" style-hover="{{ cardHover }}">
+              <div style="height:150px; background:var(--ph); position:relative; display:flex; align-items:center; justify-content:center;">
+                <span style="position:absolute; top:12px; right:12px; padding:5px 12px; border-radius:99px; background:rgba(44,40,36,.78); color:#fff; font-weight:600; font-size:0.9em;">{{ v.duration }}</span>
+                <span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:99px; background:rgba(251,248,242,.94); color:var(--accent-dark,#1f5a92); font-weight:700; font-size:0.85em;">{{ v.tagIcon }} {{ v.tag }}</span>
+                <span style="width:52px; height:52px; border-radius:50%; background:rgba(251,248,242,.92); display:flex; align-items:center; justify-content:center; color:var(--accent,#2a6fb0);"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+              </div>
+              <div style="padding:18px 20px 22px; display:flex; flex-direction:column; gap:8px; flex:1;">
+                <h3 style="margin:0; font-size:1.2em; line-height:1.25;">{{ v.title }}</h3>
+                <p style="margin:0; color:var(--muted,#6b635a); font-size:1em;">{{ v.meta }}</p>
+                <div style="height:8px; border-radius:99px; background:var(--line,#ddd4c6); margin-top:6px; overflow:hidden;"><div style="{{ v.progressStyle }}"></div></div>
+                <span style="color:var(--muted,#6b635a); font-size:0.92em;">{{ v.progressLabel }}</span>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ LIBRARY ============ -->
+    <sc-if value="{{ onLibrary }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:1180px; margin:0 auto; padding:44px 28px 80px;">
+        <h1 style="font-size:2.4em; margin:0 0 6px;">Video Library</h1>
+        <p style="font-size:1.25em; color:var(--muted,#6b635a); margin:0 0 26px;">Every video tells you exactly what to expect before you begin.</p>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
+          <sc-for list="{{ libChips }}" as="chip" hint-placeholder-count="5">
+            <button onClick="{{ chip.choose }}" style="{{ chip.style }}">{{ chip.label }}</button>
+          </sc-for>
+        </div>
+        <p style="margin:0 0 26px; color:var(--muted,#6b635a); font-size:1.05em;">{{ libCount }}</p>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+          <sc-for list="{{ videos }}" as="v" hint-placeholder-count="6">
+            <button onClick="{{ v.open }}" style="text-align:left; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; cursor:pointer; padding:0; color:inherit; font-family:inherit; display:flex; flex-direction:column;" style-hover="{{ cardHover }}">
+              <div style="height:160px; background:var(--ph); position:relative; display:flex; align-items:center; justify-content:center;">
+                <span style="position:absolute; top:12px; right:12px; padding:5px 12px; border-radius:99px; background:rgba(44,40,36,.78); color:#fff; font-weight:600; font-size:0.9em;">{{ v.duration }}</span>
+                <span style="{{ v.posBadgeStyle }}">{{ v.access }}</span>
+                <sc-if value="{{ v.locked }}" hint-placeholder-val="{{ false }}">
+                  <span style="width:56px; height:56px; border-radius:50%; background:rgba(44,40,36,.72); display:flex; align-items:center; justify-content:center; color:#fff;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 018 0v3"></path></svg></span>
+                </sc-if>
+                <sc-if value="{{ v.unlocked }}" hint-placeholder-val="{{ true }}">
+                  <span style="width:56px; height:56px; border-radius:50%; background:rgba(251,248,242,.92); display:flex; align-items:center; justify-content:center; color:var(--accent,#2a6fb0);"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+                </sc-if>
+              </div>
+              <div style="padding:20px 22px 24px; display:flex; flex-direction:column; gap:14px; flex:1;">
+                <h3 style="margin:0; font-size:1.3em; line-height:1.25;">{{ v.title }}</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; margin-top:auto;">
+                  <div><div style="font-size:0.82em; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted,#6b635a);">Intensity</div><div style="font-weight:600; font-size:1.02em;">{{ v.intensity }}</div></div>
+                  <div><div style="font-size:0.82em; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted,#6b635a);">Stance</div><div style="font-weight:600; font-size:1.02em;">{{ v.stance }}</div></div>
+                  <div><div style="font-size:0.82em; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted,#6b635a);">Focus</div><div style="font-weight:600; font-size:1.02em;">{{ v.focus }}</div></div>
+                  <div><div style="font-size:0.82em; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted,#6b635a);">Length</div><div style="font-weight:600; font-size:1.02em;">{{ v.duration }}</div></div>
+                </div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ PLAYER ============ -->
+    <sc-if value="{{ onPlayer }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:1320px; margin:0 auto; padding:28px 28px 80px;">
+        <button onClick="{{ navLib }}" style="display:inline-flex; align-items:center; gap:8px; background:none; border:none; cursor:pointer; color:var(--accent-dark,#1f5a92); font-weight:600; font-size:1.1em; font-family:inherit; padding:8px 0; margin-bottom:14px;">‹ Back to library</button>
+
+        <div style="display:grid; grid-template-columns:1.55fr 1fr; gap:28px; align-items:start;">
+          <!-- LEFT: player + transcript -->
+          <div>
+            <div style="border-radius:18px; overflow:hidden; border:2px solid var(--line,#ddd4c6); background:#1c1916;">
+              <div style="aspect-ratio:16/9; background:repeating-linear-gradient(45deg,#3a342d,#3a342d 16px,#332e28 16px,#332e28 32px); position:relative; display:flex; align-items:center; justify-content:center;">
+                <span style="font-family:ui-monospace,monospace; color:#b8ac99; font-size:0.95em;">[ lesson video ]</span>
+                <sc-if value="{{ showSubs }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.82); color:#fff; padding:10px 18px; border-radius:8px; font-size:1.15em; font-weight:500; max-width:80%; text-align:center;">{{ activeCaption }}</div>
+                </sc-if>
+              </div>
+              <!-- progress -->
+              <div style="padding:0 20px;">
+                <div style="height:12px; border-radius:99px; background:#4a443c; margin:18px 0 6px; overflow:hidden;"><div style="{{ progressStyle }}"></div></div>
+                <div style="display:flex; justify-content:space-between; color:#b8ac99; font-size:0.95em; margin-bottom:6px;"><span>{{ currentTime }}</span><span>{{ totalTime }}</span></div>
+              </div>
+              <!-- controls: spaced >=24px -->
+              <div style="display:flex; align-items:center; gap:28px; padding:14px 24px 22px; flex-wrap:wrap;">
+                <button onClick="{{ rewind }}" style="display:inline-flex; align-items:center; gap:10px; background:#3a342d; color:#fff; border:none; cursor:pointer; padding:14px 20px; border-radius:12px; font-size:1.05em; font-weight:600; font-family:inherit; min-height:56px;">↺ 10s</button>
+                <button onClick="{{ togglePlay }}" style="display:inline-flex; align-items:center; justify-content:center; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; width:72px; height:72px; border-radius:50%;">
+                  <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg></sc-if>
+                  <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></sc-if>
+                </button>
+                <button onClick="{{ toggleSubs }}" style="{{ subsBtnStyle }}">Subtitles: {{ subsLabel }}</button>
+              </div>
+            </div>
+
+            <!-- interactive transcript -->
+            <div style="margin-top:24px; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:24px 26px;">
+              <h3 style="margin:0 0 4px; font-size:1.3em;">Transcript</h3>
+              <p style="margin:0 0 16px; color:var(--muted,#6b635a); font-size:1.02em;">Tap any line to jump the video to that moment.</p>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <sc-for list="{{ transcript }}" as="line" hint-placeholder-count="5">
+                  <button onClick="{{ line.seek }}" style="{{ line.style }}"><span style="font-variant-numeric:tabular-nums; color:var(--accent-dark,#1f5a92); font-weight:600; margin-right:14px;">{{ line.time }}</span>{{ line.text }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: syllabus accordion -->
+          <aside style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; position:sticky; top:96px;">
+            <div style="padding:22px 24px; border-bottom:2px solid var(--line,#ddd4c6);">
+              <h2 style="margin:0 0 4px; font-size:1.4em;">Your roadmap</h2>
+              <p style="margin:0; color:var(--muted,#6b635a); font-size:1.02em;">{{ syllabusProgress }}</p>
+            </div>
+            <sc-for list="{{ chapters }}" as="chapter" hint-placeholder-count="3">
+              <div style="border-bottom:1px solid var(--line,#ddd4c6);">
+                <button onClick="{{ chapter.toggle }}" style="width:100%; display:flex; align-items:center; gap:14px; background:none; border:none; cursor:pointer; padding:20px 24px; text-align:left; color:inherit; font-family:inherit;" style-hover="{{ rowHover }}">
+                  <span style="{{ chapter.chevStyle }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
+                  <span style="flex:1;"><span style="font-weight:700; font-size:1.15em; display:block;">{{ chapter.title }}</span><span style="color:var(--muted,#6b635a); font-size:0.98em;">{{ chapter.meta }}</span></span>
+                </button>
+                <sc-if value="{{ chapter.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:0 24px 12px;">
+                    <sc-for list="{{ chapter.lessons }}" as="lesson" hint-placeholder-count="3">
+                      <button onClick="{{ lesson.select }}" style="{{ lesson.rowStyle }}">
+                        <span style="{{ lesson.checkStyle }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></span>
+                        <span style="flex:1;">{{ lesson.title }}</span>
+                        <span style="color:var(--muted,#6b635a); font-size:0.95em;">{{ lesson.duration }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </aside>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ ABOUT ============ -->
+    <sc-if value="{{ onAbout }}" hint-placeholder-val="{{ false }}">
+      <main>
+        <section style="max-width:900px; margin:0 auto; padding:64px 28px 20px; text-align:center;">
+          <span style="display:inline-block; padding:8px 16px; border-radius:99px; background:var(--accent-soft,#e6eef6); color:var(--accent-dark,#1f5a92); font-weight:600; margin-bottom:20px;">Our mission</span>
+          <h1 style="font-size:2.9em; line-height:1.1; margin:0 0 20px; letter-spacing:-0.02em;">Martial arts that meet older adults exactly where they are.</h1>
+          <p style="font-size:1.3em; color:var(--muted,#6b635a); margin:0 auto; max-width:56ch;">We believe active aging is a right, not a privilege. We take the balance, focus, and confidence of traditional martial arts and rebuild them — gentle, safe, and accessible — for practicing at home at any ability.</p>
+        </section>
+
+        <section style="max-width:1100px; margin:0 auto; padding:40px 28px;">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:22px;">
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:30px;">
+              <div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); margin-bottom:6px;">Safe</div>
+              <p style="margin:0; color:var(--muted,#6b635a); font-size:1.1em;">Every session is gated behind a health check and matched to your body — seated, supported, or standing.</p>
+            </div>
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:30px;">
+              <div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); margin-bottom:6px;">Clear</div>
+              <p style="margin:0; color:var(--muted,#6b635a); font-size:1.1em;">Large text, big buttons, captions, and read-aloud — built to WCAG standards so no one is left behind.</p>
+            </div>
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:30px;">
+              <div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); margin-bottom:6px;">Kind</div>
+              <p style="margin:0; color:var(--muted,#6b635a); font-size:1.1em;">We celebrate consistency over speed, and connection over competition. Progress at your own pace.</p>
+            </div>
+          </div>
+        </section>
+
+        <section style="max-width:1100px; margin:0 auto; padding:40px 28px 20px;">
+          <h2 style="font-size:2.1em; margin:0 0 6px; text-align:center;">The Team</h2>
+          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 0 34px; text-align:center;">The COMP 370 students who built this platform.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+            <sc-for list="{{ students }}" as="st" hint-placeholder-count="3">
+              <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="aspect-ratio:4/5; background:{{ st.bg }}; position:relative;">
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ st.slotId }}" shape="rect" placeholder="Drop your photo" hint-size="100%,100%"></x-import>
+                </div>
+                <div style="padding:20px 22px 24px;">
+                  <h3 style="margin:0 0 4px; font-size:1.3em;">Your Name</h3>
+                  <div style="color:var(--accent-dark,#1f5a92); font-weight:600; margin-bottom:12px; font-size:1.02em;">Your Role · COMP 370</div>
+                  <p style="margin:0; color:var(--muted,#6b635a); font-size:1.08em;">Add a short line about who you are and what you worked on.</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="max-width:1100px; margin:0 auto; padding:40px 28px 90px;">
+          <h2 style="font-size:2.1em; margin:0 0 6px; text-align:center;">The people behind the practice</h2>
+          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 0 34px; text-align:center;">A team of instructors, nurses, designers, and researchers.</p>
+          <div style="display:flex; gap:12px; height:460px;">
+            <sc-for list="{{ team }}" as="m" hint-placeholder-count="7">
+              <div onMouseEnter="{{ m.onEnter }}" onMouseLeave="{{ m.onLeave }}" style="{{ m.cardStyle }}">
+                <div style="position:absolute; inset:0; background:{{ m.bg }};">
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ m.slotId }}" shape="rect" placeholder="Photo" hint-size="100%,100%"></x-import>
+                </div>
+                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(20,17,14,.82) 0%, rgba(20,17,14,.35) 42%, rgba(20,17,14,0) 68%); pointer-events:none;"></div>
+                <div style="position:absolute; left:0; right:0; bottom:0; padding:22px 24px; pointer-events:none;">
+                  <h3 style="{{ m.nameStyle }}">{{ m.name }}</h3>
+                  <div style="{{ m.detailStyle }}">
+                    <div style="color:#ffd9a3; font-weight:700; margin:6px 0 10px; font-size:1.05em;">{{ m.role }}</div>
+                    <p style="margin:0; color:rgba(255,255,255,.9); font-size:1.05em; line-height:1.45;">{{ m.bio }}</p>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </main>
+    </sc-if>
+
+    <!-- ============ BLOG ============ -->
+    <sc-if value="{{ onBlog }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:1180px; margin:0 auto; padding:56px 28px 90px;">
+        <span style="display:inline-block; padding:8px 16px; border-radius:99px; background:var(--accent-soft,#e6eef6); color:var(--accent-dark,#1f5a92); font-weight:600; margin-bottom:16px;">The Steady Path Journal</span>
+        <h1 style="font-size:2.7em; margin:0 0 8px; letter-spacing:-0.02em;">Stories, tips &amp; gentle guidance</h1>
+        <p style="font-size:1.25em; color:var(--muted,#6b635a); margin:0 0 40px; max-width:52ch;">Short, practical reads on balance, safety, breathing, and living actively — written for you.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+          <sc-for list="{{ posts }}" as="p" hint-placeholder-count="6">
+            <button onClick="{{ p.open }}" style="text-align:left; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; cursor:pointer; padding:0; color:inherit; font-family:inherit; display:flex; flex-direction:column;" style-hover="{{ cardHover }}">
+              <div style="height:150px; background:var(--ph); position:relative;">
+                <span style="position:absolute; top:12px; left:12px; padding:5px 12px; border-radius:99px; background:var(--accent,#2a6fb0); color:#fff; font-weight:600; font-size:0.85em;">{{ p.cat }}</span>
+              </div>
+              <div style="padding:22px 24px 26px; display:flex; flex-direction:column; gap:12px; flex:1;">
+                <div style="color:var(--muted,#6b635a); font-size:0.95em;">{{ p.date }} · {{ p.read }}</div>
+                <h3 style="margin:0; font-size:1.3em; line-height:1.25;">{{ p.title }}</h3>
+                <p style="margin:0; color:var(--muted,#6b635a); font-size:1.08em;">{{ p.excerpt }}</p>
+                <span style="margin-top:auto; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1.05em;">Read more →</span>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ LOGIN ============ -->
+    <sc-if value="{{ onLogin }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:520px; margin:0 auto; padding:64px 28px 90px;">
+        <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:44px 40px; text-align:center;">
+          <div style="width:60px; height:60px; border-radius:16px; background:var(--accent,#2a6fb0); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.6em; margin:0 auto 22px;">道</div>
+          <h1 style="font-size:2.2em; margin:0 0 12px;">Welcome back</h1>
+          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 auto 30px; max-width:40ch;">Enter your email and we'll send you a magic link to sign in — no password needed.</p>
+          <label style="display:block; text-align:left; font-weight:600; margin-bottom:8px; font-size:1.05em;">Your email address</label>
+          <input type="email" placeholder="you@example.com" style="width:100%; padding:16px 18px; border-radius:12px; border:2px solid var(--line,#ddd4c6); background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-size:1.15em; font-family:inherit; margin-bottom:18px; box-sizing:border-box;">
+          <button onClick="{{ doLogin }}" style="width:100%; padding:18px 40px; border-radius:14px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-size:1.2em; font-weight:700; font-family:inherit; min-height:62px;">Send my magic link →</button>
+          <p style="margin:24px 0 0; color:var(--muted,#6b635a); font-size:1.05em;">New here? <button onClick="{{ startIntake }}" style="background:none; border:none; padding:0; cursor:pointer; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1em; font-family:inherit; text-decoration:underline; text-underline-offset:3px;">Create a free account</button></p>
+          <p style="margin:16px 0 0; padding-top:16px; border-top:1px solid var(--line,#ddd4c6); color:var(--muted,#6b635a); font-size:0.98em;">Staff member? <button onClick="{{ navAdminLogin }}" style="background:none; border:none; padding:0; cursor:pointer; color:var(--accent-dark,#1f5a92); font-weight:700; font-size:1em; font-family:inherit; text-decoration:underline; text-underline-offset:3px;">Admin sign-in</button></p>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ ADMIN LOGIN ============ -->
+    <sc-if value="{{ onAdminLogin }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:520px; margin:0 auto; padding:64px 28px 90px;">
+        <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:44px 40px;">
+          <div style="width:60px; height:60px; border-radius:16px; background:#2c2824; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.5em; margin:0 auto 22px;">道</div>
+          <h1 style="font-size:2.1em; margin:0 0 8px; text-align:center;">Admin sign-in</h1>
+          <p style="font-size:1.1em; color:var(--muted,#6b635a); margin:0 auto 28px; text-align:center; max-width:38ch;">Restricted area. Staff credentials required.</p>
+          <label style="display:block; font-weight:600; margin-bottom:8px; font-size:1.05em;">Work email</label>
+          <input type="email" placeholder="admin@steadypath.org" style="width:100%; padding:15px 18px; border-radius:12px; border:2px solid var(--line,#ddd4c6); background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-size:1.1em; font-family:inherit; margin-bottom:16px; box-sizing:border-box;">
+          <label style="display:block; font-weight:600; margin-bottom:8px; font-size:1.05em;">Password</label>
+          <input type="password" placeholder="••••••••" style="width:100%; padding:15px 18px; border-radius:12px; border:2px solid var(--line,#ddd4c6); background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-size:1.1em; font-family:inherit; margin-bottom:20px; box-sizing:border-box;">
+          <button onClick="{{ doAdminLogin }}" style="width:100%; padding:17px 40px; border-radius:14px; background:#2c2824; color:#fff; border:none; cursor:pointer; font-size:1.15em; font-weight:700; font-family:inherit; min-height:60px;">Sign in to admin</button>
+          <p style="margin:20px 0 0; text-align:center;"><button onClick="{{ navHome }}" style="background:none; border:none; padding:0; cursor:pointer; color:var(--muted,#6b635a); font-size:1em; font-family:inherit; text-decoration:underline;">Back to site</button></p>
+        </div>
+      </main>
+    </sc-if>
+
+    <!-- ============ ADMIN DASHBOARD ============ -->
+    <sc-if value="{{ onAdmin }}" hint-placeholder-val="{{ false }}">
+      <main style="max-width:1280px; margin:0 auto; padding:32px 28px 80px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+          <div>
+            <h1 style="font-size:2.2em; margin:0;">Admin Console</h1>
+            <p style="margin:4px 0 0; color:var(--muted,#6b635a); font-size:1.1em;">Manage videos, members, and program impact.</p>
+          </div>
+          <button onClick="{{ adminLogout }}" style="padding:12px 22px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer; font-weight:700; font-size:1em; font-family:inherit; min-height:48px;">Sign out</button>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin:24px 0 28px; border-bottom:2px solid var(--line,#ddd4c6); padding-bottom:0;">
+          <sc-for list="{{ adminTabs }}" as="tab" hint-placeholder-count="3">
+            <button onClick="{{ tab.choose }}" style="{{ tab.style }}">{{ tab.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- REPORTS TAB -->
+        <sc-if value="{{ adminReports }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px;">
+              <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; padding:22px;"><div style="color:var(--muted,#6b635a); font-weight:600; margin-bottom:6px;">Total members</div><div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">1,284</div></div>
+              <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; padding:22px;"><div style="color:var(--muted,#6b635a); font-weight:600; margin-bottom:6px;">Active this week</div><div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">862</div></div>
+              <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; padding:22px;"><div style="color:var(--muted,#6b635a); font-weight:600; margin-bottom:6px;">Avg. progress</div><div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">58%</div></div>
+              <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:16px; padding:22px;"><div style="color:var(--muted,#6b635a); font-weight:600; margin-bottom:6px;">Retention (30d)</div><div style="font-size:2.4em; font-weight:700; color:var(--accent,#2a6fb0); line-height:1;">71%</div></div>
+            </div>
+
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:26px; margin-bottom:26px;">
+              <h2 style="margin:0 0 4px; font-size:1.4em;">New members per month</h2>
+              <p style="margin:0 0 20px; color:var(--muted,#6b635a);">Sign-up growth over the last 8 months.</p>
+              <svg viewBox="0 0 760 240" style="width:100%; height:auto;" data-om-raster="true">
+                <line x1="44" y1="200" x2="740" y2="200" stroke="var(--line,#ddd4c6)" stroke-width="2"></line>
+                <sc-for list="{{ signupBars }}" as="b" hint-placeholder-count="8">
+                  <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="6" fill="var(--accent,#2a6fb0)"></rect>
+                  <text x="{{ b.cx }}" y="222" text-anchor="middle" font-size="14" fill="var(--muted,#6b635a)" font-family="Baloo 2,sans-serif">{{ b.label }}</text>
+                  <text x="{{ b.cx }}" y="{{ b.ty }}" text-anchor="middle" font-size="13" fill="var(--fg,#2c2824)" font-family="Baloo 2,sans-serif" font-weight="600">{{ b.value }}</text>
+                </sc-for>
+              </svg>
+            </div>
+
+            <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:26px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+                <h2 style="margin:0; font-size:1.4em;">Member progress report</h2>
+                <button onClick="{{ printUsers }}" style="{{ pdfBtn }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"></path></svg> Download PDF</button>
+              </div>
+              <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; align-items:flex-end;">
+                <div style="flex:1; min-width:180px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Search name</label><input type="text" value="{{ fName }}" onInput="{{ setFName }}" placeholder="e.g. Margaret" style="{{ inputStyle }}"></div>
+                <div style="min-width:170px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Class / track</label><select value="{{ fTrack }}" onChange="{{ setFTrack }}" style="{{ inputStyle }}"><sc-for list="{{ trackOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></div>
+                <div style="min-width:120px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Min age</label><input type="number" value="{{ fAgeMin }}" onInput="{{ setFAgeMin }}" style="{{ inputStyle }}"></div>
+                <div style="min-width:120px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Max age</label><input type="number" value="{{ fAgeMax }}" onInput="{{ setFAgeMax }}" style="{{ inputStyle }}"></div>
+              </div>
+              <p style="margin:0 0 12px; color:var(--muted,#6b635a);">{{ userCount }}</p>
+              <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:1.02em;">
+                  <thead><tr>
+                    <th style="{{ th }}">Name</th><th style="{{ th }}">Age</th><th style="{{ th }}">Class</th><th style="{{ th }}">Plan</th><th style="{{ th }}">Sessions</th><th style="{{ th }}">Progress</th><th style="{{ th }}">Last active</th>
+                  </tr></thead>
+                  <tbody>
+                    <sc-for list="{{ reportUsers }}" as="u" hint-placeholder-count="6">
+                      <tr>
+                        <td style="{{ td }}"><strong>{{ u.name }}</strong></td>
+                        <td style="{{ td }}">{{ u.age }}</td>
+                        <td style="{{ td }}">{{ u.track }}</td>
+                        <td style="{{ td }}"><span style="{{ u.planStyle }}">{{ u.plan }}</span></td>
+                        <td style="{{ td }}">{{ u.sessions }}</td>
+                        <td style="{{ td }}"><span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:80px; height:8px; border-radius:99px; background:var(--line,#ddd4c6); overflow:hidden; display:inline-block;"><span style="{{ u.progStyle }}"></span></span>{{ u.progress }}%</span></td>
+                        <td style="{{ td }}">{{ u.active }}</td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- VIDEOS TAB -->
+        <sc-if value="{{ adminVideosTab }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+            <button onClick="{{ showCatalogSub }}" style="{{ catalogSubStyle }}">Catalog</button>
+            <button onClick="{{ showLevelsSub }}" style="{{ levelsSubStyle }}">Skill levels ({{ levelCount }})</button>
+          </div>
+
+          <sc-if value="{{ videoSubCatalog }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+              <h2 style="margin:0; font-size:1.4em;">Video catalog ({{ videoTotal }})</h2>
+              <div style="display:flex; gap:12px;">
+                <button onClick="{{ printVideos }}" style="{{ pdfBtn }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"></path></svg> Download PDF</button>
+                <button onClick="{{ openUpload }}" style="display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-weight:700; font-size:1em; font-family:inherit; min-height:48px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg> Upload video</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:1.02em;">
+                <thead><tr><th style="{{ th }}">Title</th><th style="{{ th }}">Category</th><th style="{{ th }}">Duration</th><th style="{{ th }}">Access level</th><th style="{{ th }}">Status</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ adminVideos }}" as="v" hint-placeholder-count="6">
+                    <tr>
+                      <td style="{{ td }}"><strong>{{ v.title }}</strong></td>
+                      <td style="{{ td }}">{{ v.category }}</td>
+                      <td style="{{ td }}">{{ v.duration }}</td>
+                      <td style="{{ td }}"><select value="{{ v.access }}" onChange="{{ v.setAccess }}" style="{{ selectSmall }}"><option value="Free">Free</option><option value="Members">Members</option><option value="Premium">Premium</option></select></td>
+                      <td style="{{ td }}"><span style="{{ v.statusStyle }}">{{ v.status }}</span></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- SKILL LEVELS SUB-TAB -->
+          <sc-if value="{{ videoSubLevels }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:26px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px;">
+              <div>
+                <h2 style="margin:0 0 4px; font-size:1.4em;">Skill levels</h2>
+                <p style="margin:0; color:var(--muted,#6b635a); max-width:56ch;">Group videos into a progression. Each level combines techniques that build on the last, getting more advanced as members move up.</p>
+              </div>
+              <button onClick="{{ openNewLevel }}" style="display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-weight:700; font-size:1em; font-family:inherit; min-height:48px; white-space:nowrap;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg> New level</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:16px; margin-top:22px;">
+              <sc-for list="{{ levels }}" as="lv" hint-placeholder-count="3">
+                <div style="display:flex; gap:18px; align-items:flex-start; border:2px solid var(--line,#ddd4c6); border-radius:16px; padding:20px 22px; background:var(--bg,#f2ece0);">
+                  <div style="flex:none; width:66px; height:66px; border-radius:14px; background:var(--accent,#2a6fb0); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1;">
+                    <span style="font-size:0.62em; font-weight:700; letter-spacing:.08em; opacity:.85;">LEVEL</span>
+                    <span style="font-size:1.7em; font-weight:800;">{{ lv.badge }}</span>
+                  </div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;">
+                      <h3 style="margin:0; font-size:1.25em;">{{ lv.name }}</h3>
+                      <span style="color:var(--muted,#6b635a); font-weight:600; font-size:0.95em;">{{ lv.count }}</span>
+                    </div>
+                    <p style="margin:6px 0 12px; color:var(--muted,#6b635a); font-size:1.02em;">{{ lv.desc }}</p>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                      <sc-for list="{{ lv.videos }}" as="vid" hint-placeholder-count="2">
+                        <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:99px; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); font-weight:600; font-size:0.96em;">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent,#2a6fb0)"><path d="M8 5v14l11-7z"></path></svg>
+                          {{ vid.title }} <span style="color:var(--muted,#6b635a); font-weight:500;">· {{ vid.duration }}</span>
+                        </span>
+                      </sc-for>
+                      <sc-if value="{{ lv.empty }}" hint-placeholder-val="{{ false }}">
+                        <span style="color:var(--muted,#6b635a); font-style:italic; padding:8px 0;">No videos yet — edit to add some.</span>
+                      </sc-if>
+                    </div>
+                  </div>
+                  <div style="flex:none; display:flex; gap:8px;">
+                    <button onClick="{{ lv.edit }}" style="padding:10px 18px; border-radius:10px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer; font-weight:700; font-family:inherit; min-height:44px;">Edit</button>
+                    <button onClick="{{ lv.remove }}" style="padding:10px 14px; border-radius:10px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--muted,#6b635a); cursor:pointer; font-weight:700; font-family:inherit; min-height:44px;">Remove</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- USERS TAB -->
+        <sc-if value="{{ adminUsersTab }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; padding:26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+              <h2 style="margin:0; font-size:1.4em;">All members</h2>
+              <button onClick="{{ printUsers }}" style="{{ pdfBtn }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"></path></svg> Download PDF</button>
+            </div>
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; align-items:flex-end;">
+              <div style="flex:1; min-width:180px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Search name</label><input type="text" value="{{ fName }}" onInput="{{ setFName }}" placeholder="e.g. Margaret" style="{{ inputStyle }}"></div>
+              <div style="min-width:170px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Class / track</label><select value="{{ fTrack }}" onChange="{{ setFTrack }}" style="{{ inputStyle }}"><sc-for list="{{ trackOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></div>
+              <div style="min-width:150px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Plan</label><select value="{{ fPlan }}" onChange="{{ setFPlan }}" style="{{ inputStyle }}"><sc-for list="{{ planOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></div>
+              <div style="min-width:110px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Min age</label><input type="number" value="{{ fAgeMin }}" onInput="{{ setFAgeMin }}" style="{{ inputStyle }}"></div>
+              <div style="min-width:110px;"><label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.95em;">Max age</label><input type="number" value="{{ fAgeMax }}" onInput="{{ setFAgeMax }}" style="{{ inputStyle }}"></div>
+            </div>
+            <p style="margin:0 0 12px; color:var(--muted,#6b635a);">{{ userCount }}</p>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:1.02em;">
+                <thead><tr><th style="{{ th }}">Name</th><th style="{{ th }}">Age</th><th style="{{ th }}">Class</th><th style="{{ th }}">Plan</th><th style="{{ th }}">Joined</th><th style="{{ th }}">Progress</th><th style="{{ th }}">Status</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ reportUsers }}" as="u" hint-placeholder-count="6">
+                    <tr>
+                      <td style="{{ td }}"><strong>{{ u.name }}</strong></td>
+                      <td style="{{ td }}">{{ u.age }}</td>
+                      <td style="{{ td }}">{{ u.track }}</td>
+                      <td style="{{ td }}"><span style="{{ u.planStyle }}">{{ u.plan }}</span></td>
+                      <td style="{{ td }}">{{ u.joined }}</td>
+                      <td style="{{ td }}">{{ u.progress }}%</td>
+                      <td style="{{ td }}"><span style="{{ u.statusStyle }}">{{ u.status }}</span></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+      </main>
+
+      <!-- UPLOAD MODAL -->
+      <sc-if value="{{ uploadOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeUpload }}" style="position:fixed; inset:0; z-index:80; background:rgba(20,17,14,.55); display:flex; align-items:center; justify-content:center; padding:24px;">
+          <div onClick="{{ stopProp }}" style="width:520px; max-width:100%; max-height:90vh; overflow-y:auto; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:32px; animation:fadeup .2s ease;">
+            <h2 style="margin:0 0 6px; font-size:1.6em;">Upload a new video</h2>
+            <p style="margin:0 0 22px; color:var(--muted,#6b635a);">Add it to a category and set who can watch it.</p>
+            <div style="border:2px dashed var(--line,#ddd4c6); border-radius:14px; padding:28px; text-align:center; margin-bottom:20px; background:var(--bg,#f2ece0);">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#2a6fb0)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><path d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"></path></svg>
+              <div style="font-weight:600;">Drag a video file here, or click to browse</div>
+              <div style="color:var(--muted,#6b635a); font-size:0.95em; margin-top:4px;">MP4 or MOV · up to 2 GB · sent to Mux for processing</div>
+            </div>
+            <label style="display:block; font-weight:600; margin-bottom:6px;">Title</label>
+            <input type="text" value="{{ upTitle }}" onInput="{{ setUpTitle }}" placeholder="e.g. Gentle Evening Stretch" style="{{ inputStyle }}">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
+              <div><label style="display:block; font-weight:600; margin-bottom:6px;">Category</label><select value="{{ upCat }}" onChange="{{ setUpCat }}" style="{{ inputStyle }}"><sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></div>
+              <div><label style="display:block; font-weight:600; margin-bottom:6px;">Access level</label><select value="{{ upAccess }}" onChange="{{ setUpAccess }}" style="{{ inputStyle }}"><option value="Free">Free</option><option value="Members">Members</option><option value="Premium">Premium</option></select></div>
+              <div><label style="display:block; font-weight:600; margin-bottom:6px;">Duration</label><input type="text" value="{{ upDur }}" onInput="{{ setUpDur }}" placeholder="e.g. 10 min" style="{{ inputStyle }}"></div>
+              <div><label style="display:block; font-weight:600; margin-bottom:6px;">Intensity</label><select value="{{ upIntensity }}" onChange="{{ setUpIntensity }}" style="{{ inputStyle }}"><option value="Gentle">Gentle</option><option value="Moderate">Moderate</option></select></div>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:26px;">
+              <button onClick="{{ closeUpload }}" style="padding:14px 26px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer; font-weight:700; font-family:inherit; min-height:52px;">Cancel</button>
+              <button onClick="{{ submitUpload }}" style="padding:14px 30px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-weight:700; font-family:inherit; min-height:52px;">Publish video</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- LEVEL MODAL -->
+      <sc-if value="{{ levelModalOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeLevelModal }}" style="position:fixed; inset:0; z-index:80; background:rgba(20,17,14,.55); display:flex; align-items:center; justify-content:center; padding:24px;">
+          <div onClick="{{ stopProp }}" style="width:560px; max-width:100%; max-height:90vh; overflow-y:auto; background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:20px; padding:32px; animation:fadeup .2s ease;">
+            <h2 style="margin:0 0 6px; font-size:1.6em;">{{ levelModalTitle }}</h2>
+            <p style="margin:0 0 22px; color:var(--muted,#6b635a);">Name the level, describe what it builds toward, then pick the videos that belong to it.</p>
+            <label style="display:block; font-weight:600; margin-bottom:6px;">Level name</label>
+            <input type="text" value="{{ lvName }}" onInput="{{ setLvName }}" placeholder="e.g. Level 1 — Building Support" style="{{ inputStyle }}">
+            <label style="display:block; font-weight:600; margin:14px 0 6px;">Description</label>
+            <textarea value="{{ lvDesc }}" onInput="{{ setLvDesc }}" placeholder="What techniques does this level cover, and how is it more advanced than the one before?" style="width:100%; padding:12px 14px; border-radius:10px; border:2px solid var(--line,#ddd4c6); background:var(--bg,#f2ece0); color:var(--fg,#2c2824); font-size:1.02em; min-height:80px; resize:vertical; font-family:inherit;"></textarea>
+            <div style="display:flex; align-items:baseline; justify-content:space-between; margin:20px 0 8px;">
+              <label style="font-weight:600;">Videos in this level</label>
+              <span style="color:var(--muted,#6b635a); font-size:0.95em;">{{ lvPickCount }}</span>
+            </div>
+            <div style="border:2px solid var(--line,#ddd4c6); border-radius:14px; overflow:hidden;">
+              <sc-for list="{{ levelPicks }}" as="p" hint-placeholder-count="5">
+                <label style="display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--line,#ddd4c6); cursor:pointer;">
+                  <input type="checkbox" checked="{{ p.checked }}" onChange="{{ p.toggle }}" style="width:20px; height:20px; accent-color:var(--accent,#2a6fb0); cursor:pointer;">
+                  <span style="flex:1; font-weight:600;">{{ p.title }}</span>
+                  <span style="color:var(--muted,#6b635a); font-size:0.95em;">{{ p.duration }}</span>
+                </label>
+              </sc-for>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:26px;">
+              <button onClick="{{ closeLevelModal }}" style="padding:14px 26px; border-radius:12px; background:transparent; border:2px solid var(--line,#ddd4c6); color:var(--fg,#2c2824); cursor:pointer; font-weight:700; font-family:inherit; min-height:52px;">Cancel</button>
+              <button onClick="{{ saveLevel }}" style="padding:14px 30px; border-radius:12px; background:var(--accent,#2a6fb0); color:#fff; border:none; cursor:pointer; font-weight:700; font-family:inherit; min-height:52px;">Save level</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    </sc-if>
+
+    <!-- ============ PRINT VIEW ============ -->
+    <sc-if value="{{ printing }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; inset:0; z-index:100; background:#fff; color:#000; overflow:auto; padding:48px; font-family:'Baloo 2',sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <div>
+            <div style="font-size:1.6em; font-weight:800;">Steady Path — {{ printTitle }}</div>
+            <div style="color:#555;">Generated {{ printDate }}{{ printFilterNote }}</div>
+          </div>
+          <button onClick="{{ cancelPrint }}" style="padding:10px 18px; border-radius:8px; background:#2c2824; color:#fff; border:none; cursor:pointer; font-family:inherit; font-weight:700;">Close</button>
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:13px; color:#000;">
+          <thead><tr>
+            <sc-for list="{{ printHeaders }}" as="h" hint-placeholder-count="5"><th style="text-align:left; border-bottom:2px solid #000; padding:8px 10px;">{{ h }}</th></sc-for>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ printRows }}" as="row" hint-placeholder-count="6">
+              <tr><sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="5"><td style="border-bottom:1px solid #ccc; padding:8px 10px;">{{ c }}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <p style="margin-top:16px; color:#777; font-size:12px;">Confidential — member health data. Handle per HIPAA / PIPEDA policy.</p>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'landing',
+    themeMode: 'light', // 'light' | 'dark' | 'system'
+    featureIdx: 0,
+    exploreFilter: 'Featured',
+    libFilter: 'All videos',
+    libraryTab: 'subscribed',
+    loggedIn: false,
+    adminTab: 'reports',
+    fName: '', fTrack: 'All classes', fPlan: 'All plans', fAgeMin: '', fAgeMax: '',
+    uploadOpen: false,
+    upTitle: '', upCat: 'Balance', upAccess: 'Members', upDur: '', upIntensity: 'Gentle',
+    videoAccess: {}, uploadedVideos: [], printView: null,
+    videoSubTab: 'catalog', // 'catalog' | 'levels'
+    levels: [
+      { id: 'lv0', name: 'Level 0 — Foundations', desc: 'Seated basics: posture, breathing and gentle joint mobility. Everyone starts here.', videos: ['Seated Balance & Breathing', 'Soft Hands: Gentle Joint Mobility'] },
+      { id: 'lv1', name: 'Level 1 — Building Support', desc: 'Coming to standing with a wall or chair, adding flowing breath work.', videos: ['Standing Tall: Wall-Supported Stances', 'Qigong Morning Flow'] },
+      { id: 'lv2', name: 'Level 2 — Confident Movement', desc: 'Free-standing weight shifts and safe-falling technique for greater independence.', videos: ['Tai Chi Weight Shifts', 'How to Fall Safely'] }
+    ],
+    levelModalOpen: false, editLevelId: null,
+    lvName: '', lvDesc: '', lvVideos: [],
+    hc: false,
+    scaleIdx: 0,
+    tts: false,
+    accessOpen: false,
+    hasTier: false,
+    tier: '',
+    // member plan + subscriptions + notifications
+    plan: 'Basic', // 'Basic' | 'Member' | 'Premium'
+    subs: { categories: ['Balance'], masters: ['Ken Ryu'], levels: ['lv0'] },
+    notifs: [
+      { id: 'n1', title: 'Tai Chi Weight Shifts', reason: 'New from Master Ken Ryu', access: 'Premium', time: '2 hours ago', unread: true },
+      { id: 'n2', title: 'Standing Tall: Wall-Supported Stances', reason: 'New in Balance', access: 'Members', time: 'Yesterday', unread: true }
+    ],
+    notifOpen: false,
+    upgradeOpen: false,
+    lockedTitle: '',
+    intakeStep: 0, // 0 welcome, 1..N questions, N+1 result
+    answers: { mobility: null, surgery: null, dizzy: null, joints: null },
+    mood: 3,
+    openChapter: 0,
+    playing: false,
+    showSubs: true,
+    progress: 34,
+    currentVideo: 'Seated Balance & Breathing',
+    activeCaption: 'Sit tall, feet flat on the floor, and breathe in slowly through your nose.',
+    doneLessons: { '0-0': true, '0-1': true, '1-0': false },
+    hoveredTeam: null
+  };
+
+  questions = [
+    { key: 'mobility', text: 'How do you prefer to exercise right now?', opts: [
+      { v: 'seated', label: 'Seated in a chair' },
+      { v: 'supported', label: 'Standing, with a wall or chair for support' },
+      { v: 'free', label: 'Freely standing on my own' } ] },
+    { key: 'surgery', text: 'Have you had surgery or a fall in the last 3 months?', opts: [
+      { v: 'yes', label: 'Yes' },
+      { v: 'no', label: 'No' } ] },
+    { key: 'dizzy', text: 'Do you feel dizzy or short of breath with light activity?', opts: [
+      { v: 'often', label: 'Often' },
+      { v: 'sometimes', label: 'Sometimes' },
+      { v: 'rarely', label: 'Rarely or never' } ] },
+    { key: 'joints', text: 'Any joint pain that limits your movement?', opts: [
+      { v: 'significant', label: 'Yes, it limits me a lot' },
+      { v: 'little', label: 'A little' },
+      { v: 'none', label: 'No' } ] }
+  ];
+
+  usersData = [
+    { name:'Margaret Ellison', age:74, track:'Seated', plan:'Premium', joined:'Apr 2026', progress:82, sessions:24, active:'Today', status:'Active' },
+    { name:'Harold Weiss', age:81, track:'Seated', plan:'Members', joined:'Mar 2026', progress:64, sessions:19, active:'2 days ago', status:'Active' },
+    { name:'Doris Nakamura', age:69, track:'Supported', plan:'Premium', joined:'Jan 2026', progress:91, sessions:38, active:'Today', status:'Active' },
+    { name:'Frank Alvarez', age:77, track:'Supported', plan:'Free', joined:'May 2026', progress:22, sessions:5, active:'8 days ago', status:'At risk' },
+    { name:'Eleanor Fitzgerald', age:66, track:'Active', plan:'Members', joined:'Feb 2026', progress:73, sessions:29, active:'Yesterday', status:'Active' },
+    { name:'George Okafor', age:84, track:'Seated', plan:'Members', joined:'Dec 2025', progress:48, sessions:14, active:'4 days ago', status:'Active' },
+    { name:'Betty Chen', age:71, track:'Active', plan:'Premium', joined:'Mar 2026', progress:88, sessions:41, active:'Today', status:'Active' },
+    { name:'Raymond Sokolov', age:79, track:'Supported', plan:'Free', joined:'Jun 2026', progress:12, sessions:3, active:'15 days ago', status:'Inactive' },
+    { name:'Patricia Lund', age:68, track:'Active', plan:'Members', joined:'Feb 2026', progress:57, sessions:22, active:'3 days ago', status:'Active' },
+    { name:'Walter Brennan', age:88, track:'Seated', plan:'Premium', joined:'Nov 2025', progress:69, sessions:31, active:'Yesterday', status:'Active' },
+    { name:'Sofia Marchetti', age:72, track:'Supported', plan:'Members', joined:'Apr 2026', progress:40, sessions:11, active:'6 days ago', status:'At risk' },
+    { name:'James Underwood', age:65, track:'Active', plan:'Free', joined:'May 2026', progress:30, sessions:8, active:'9 days ago', status:'Inactive' }
+  ];
+  adminCatalog = [
+    { title:'Seated Balance & Breathing', category:'Balance', duration:'12 min', access:'Free', status:'Published' },
+    { title:'Standing Tall: Wall-Supported Stances', category:'Balance', duration:'9 min', access:'Members', status:'Published' },
+    { title:'Qigong Morning Flow', category:'Breathing', duration:'15 min', access:'Members', status:'Published' },
+    { title:'Soft Hands: Gentle Joint Mobility', category:'Joint health', duration:'8 min', access:'Free', status:'Published' },
+    { title:'How to Fall Safely', category:'Safety', duration:'11 min', access:'Premium', status:'Published' },
+    { title:'Tai Chi Weight Shifts', category:'Balance', duration:'14 min', access:'Premium', status:'Published' },
+    { title:'Evening Wind-Down', category:'Breathing', duration:'10 min', access:'Members', status:'Draft' }
+  ];
+
+  videosData = [
+    { title: 'Seated Balance & Breathing', intensity: 'Gentle', stance: 'Seated', focus: 'Balance', duration: '12 min', master: 'Ken Ryu' },
+    { title: 'Standing Tall: Wall-Supported Stances', intensity: 'Gentle', stance: 'Supported', focus: 'Balance', duration: '9 min', master: 'Aiko Tanaka' },
+    { title: 'Qigong Morning Flow', intensity: 'Gentle', stance: 'Free standing', focus: 'Breathing', duration: '15 min', master: 'Mei Lin' },
+    { title: 'Soft Hands: Gentle Joint Mobility', intensity: 'Gentle', stance: 'Seated', focus: 'Joint health', duration: '8 min', master: 'Mei Lin' },
+    { title: 'How to Fall Safely', intensity: 'Moderate', stance: 'Supported', focus: 'Safety', duration: '11 min', master: 'Aiko Tanaka' },
+    { title: 'Tai Chi Weight Shifts', intensity: 'Moderate', stance: 'Free standing', focus: 'Balance', duration: '14 min', master: 'Ken Ryu' }
+  ];
+
+  masters = [
+    { name: 'Ken Ryu', style: 'Tai Chi & Balance' },
+    { name: 'Aiko Tanaka', style: 'Safe Falls & Support' },
+    { name: 'Mei Lin', style: 'Breathing & Mobility' }
+  ];
+
+  categoryFocus = ['Balance', 'Breathing', 'Joint health', 'Safety'];
+
+  chaptersData = [
+    { title: 'Week 1 · Foundations of Balance', lessons: [
+      { title: 'Sitting tall & centered', duration: '6 min' },
+      { title: 'Breathing with movement', duration: '5 min' },
+      { title: 'Gentle weight shifts', duration: '7 min' } ] },
+    { title: 'Week 2 · Gentle Strength', lessons: [
+      { title: 'Soft-hand wrist circles', duration: '5 min' },
+      { title: 'Seated leg lifts', duration: '6 min' },
+      { title: 'Supported half-stance', duration: '8 min' } ] },
+    { title: 'Week 3 · Falling Safely', lessons: [
+      { title: 'Protecting your neck', duration: '7 min' },
+      { title: 'Rolling backward slowly', duration: '9 min' },
+      { title: 'Getting up with confidence', duration: '8 min' } ] }
+  ];
+
+  transcriptData = [
+    { t: '0:12', text: 'Sit tall, feet flat on the floor, and breathe in slowly through your nose.' },
+    { t: '0:40', text: 'Now let the breath out gently, feeling your shoulders soften and drop.' },
+    { t: '1:15', text: 'We shift our weight to the right, keeping the movement small and controlled.' },
+    { t: '2:03', text: 'To protect your neck, tuck your chin gently toward your chest.' },
+    { t: '2:48', text: 'Wonderful. Rest for a moment and notice how steady you feel.' }
+  ];
+
+  teamColors = ['#2ea3d8', '#8a9a86', '#e8a13a', '#e07b39', '#e06b5a', '#2fa89b', '#5b6f9c'];
+
+  teamData = [
+    { initials:'MT', name:'Miranda Ting', role:'Lead UX & Accessibility Designer', bio:'Designs every screen around older eyes and hands \u2014 big targets, calm color, and no dead ends.' },
+    { initials:'KR', name:'Ken Ryu', role:'Head Martial Arts Instructor', bio:'Adapts traditional Jujutsu, Tai Chi, and Qigong into safe, gentle movements anyone can follow.' },
+    { initials:'HM', name:'Hannah Mak, RN', role:'Health & Safety Lead', bio:'Built the health check-in that keeps every session matched to your body and abilities.' },
+    { initials:'MD', name:'Dr. Mai Anh Doan', role:'Communications & Pedagogy', bio:'Writes clear, warm instruction so techniques are easy to understand and repeat at home.' },
+    { initials:'BD', name:'Dr. Benny Davidson', role:'Community Impact', bio:'Measures how the program strengthens balance, confidence, and connection over time.' },
+    { initials:'LH', name:'Larissa Horne', role:'Experiential Education Coordinator \u2014 Centre for Experiential & Career Education', bio:'Led the grant application that made this project possible.' },
+    { initials:'MB', name:'Dr. Majid Babaei', role:'Assistant Professor, School of Computing', bio:'Led the development team with students of COMP 370. His work lies at the intersection of software engineering, distributed systems, and intelligent performance analytics.' }
+  ];
+
+  postsData = [
+    { cat:'Balance', date:'July 2, 2026', read:'4 min read', title:'Three chair exercises to steady your morning', excerpt:'Start the day grounded with gentle seated movements you can do before breakfast.' },
+    { cat:'Safety', date:'June 24, 2026', read:'6 min read', title:'How to fall safely \u2014 and get back up with confidence', excerpt:'Ken Ryu breaks down the single most useful skill for preventing serious injury.' },
+    { cat:'Breathing', date:'June 15, 2026', read:'3 min read', title:'The Qigong breath that calms a racing mind', excerpt:'A slow breathing pattern from our morning flow, explained step by step.' },
+    { cat:'Community', date:'June 6, 2026', read:'5 min read', title:'Meet Margaret: 90 days on the mat at 74', excerpt:'One member shares how a daily 10-minute practice changed how steady she feels.' },
+    { cat:'Wellbeing', date:'May 28, 2026', read:'4 min read', title:'Why consistency beats intensity as we age', excerpt:'The science behind our streak system \u2014 and why small, daily movement wins.' },
+    { cat:'Joint health', date:'May 19, 2026', read:'5 min read', title:'Soft hands: keeping wrists and fingers mobile', excerpt:'Gentle joint circles that ease stiffness and keep everyday tasks comfortable.' }
+  ];
+
+  exploreCats = ['Featured','Balance','Breathing','Joint health','Seated'];
+  collectionsData = [
+    { title:'Meet Your Practice', sub:'Personalized sessions picked for you', badge:'Featured', cats:['Featured'], grad:'linear-gradient(160deg,#e8a06a,#c96f3e)' },
+    { title:'Steady Mornings', sub:'Gentle balance to start your day', badge:'Trending', cats:['Featured','Balance'], grad:'linear-gradient(160deg,#7a9e6b,#4c6b46)' },
+    { title:'Breathe & Restore', sub:'Calming Qigong breath work', badge:'New', cats:['Featured','Breathing'], grad:'linear-gradient(160deg,#5b7fb0,#324f7a)' },
+    { title:'Chair Confidence', sub:'A full seated curriculum', badge:'Popular', cats:['Featured','Seated','Balance'], grad:'linear-gradient(160deg,#8a6fa8,#5c4576)' },
+    { title:'Soft Joints', sub:'Ease stiffness, stay mobile', badge:'', cats:['Joint health','Seated'], grad:'linear-gradient(160deg,#c98a8a,#9c5a5a)' },
+    { title:'Evening Wind-Down', sub:'Slow movement before rest', badge:'', cats:['Breathing','Seated'], grad:'linear-gradient(160deg,#5b7fb0,#324f7a)' },
+    { title:'Tai Chi Flow', sub:'Graceful standing weight shifts', badge:'Trending', cats:['Balance'], grad:'linear-gradient(160deg,#7a9e6b,#4c6b46)' },
+    { title:'Hands & Wrists', sub:'Gentle joint circles', badge:'', cats:['Joint health'], grad:'linear-gradient(160deg,#c98a8a,#9c5a5a)' },
+    { title:'Deep Calm', sub:'Breath and stillness', badge:'', cats:['Breathing'], grad:'linear-gradient(160deg,#8a6fa8,#5c4576)' },
+    { title:'Kneel & Rise', sub:'Confident transitions', badge:'', cats:['Joint health','Balance'], grad:'linear-gradient(160deg,#e8a06a,#c96f3e)' }
+  ];
+
+  featuresData = [
+    { icon:'\u2696', kicker:'Move well', title:'Better balance', desc:'Slow, controlled movements from Tai Chi and Qigong that steady your body and quiet the fear of falling.', clip:'[ tai chi weight-shift clip ]', ctaLabel:'Watch a sample', act:'lib' },
+    { icon:'\u273f', kicker:'Stay safe', title:'Safety first', desc:'A gentle health check tailors every session to your body \u2014 seated, supported, or free-standing.', clip:'[ health check-in clip ]', ctaLabel:'Start your check-in', act:'intake' },
+    { icon:'\u2665', kicker:'Feel connected', title:'A gentle community', desc:'Track your streak, note how you feel each day, and share quiet encouragement with others on the path.', clip:'[ community moment clip ]', ctaLabel:'See your dashboard', act:'dash' }
+  ];
+
+  startCarousel() {
+    this.stopCarousel();
+    this._carousel = setInterval(() => {
+      this.setState(st => ({ featureIdx: (st.featureIdx + 1) % this.featuresData.length }));
+    }, 5000);
+  }
+  stopCarousel() { if (this._carousel) { clearInterval(this._carousel); this._carousel = null; } }
+  bumpCarousel(i) { this.setState({ featureIdx: i }); if (this._carousel) this.startCarousel(); }
+
+  componentDidMount() {
+    try {
+      this._mq = window.matchMedia('(prefers-color-scheme: dark)');
+      this._mqHandler = () => { if (this.state.themeMode === 'system') this.forceUpdate(); };
+      this._mq.addEventListener('change', this._mqHandler);
+    } catch (e) {}
+    this.startCarousel();
+  }
+
+  componentWillUnmount() {
+    try { if (this._mq) this._mq.removeEventListener('change', this._mqHandler); } catch (e) {}
+    this.stopCarousel();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.tts && prevState.screen !== this.state.screen) this.speakHeading();
+  }
+
+  speakHeading() {
+    try {
+      const map = { landing:'Move with confidence, at your own pace.', intake:'Health check-in', dashboard:'Your dashboard', library:'Video library', player:'Now playing, '+this.state.currentVideo, about:'About us', blog:'The Steady Path Journal, stories, tips and gentle guidance', login:'Welcome back. Log in.' };
+      const u = new SpeechSynthesisUtterance(map[this.state.screen] || '');
+      u.rate = 0.92;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  go(s) { this.setState({ screen: s, accessOpen: false }); }
+
+  // access level: Basic sees Free, Member sees Free+Members, Premium sees all
+  accessRank(a) { return ({ Free: 0, Members: 1, Premium: 2 })[a] || 0; }
+  planRank(p) { return ({ Basic: 0, Member: 1, Premium: 2 })[p] || 0; }
+  accessForTitle(title) {
+    const all = this.adminCatalog.concat(this.state.uploadedVideos);
+    const hit = all.find(v => v.title === title);
+    const override = this.state.videoAccess[title];
+    return override || (hit ? hit.access : 'Free');
+  }
+  canView(title) { return this.planRank(this.state.plan) >= this.accessRank(this.accessForTitle(title)); }
+  levelForTitle(title) {
+    const lv = this.state.levels.find(l => l.videos.includes(title));
+    return lv ? lv.name : null;
+  }
+  openVideo(title) {
+    if (this.canView(title)) {
+      this.setState({ screen: 'player', currentVideo: title, accessOpen: false, playing: false, notifOpen: false });
+    } else {
+      this.setState({ upgradeOpen: true, lockedTitle: title, notifOpen: false });
+    }
+  }
+  toggleSub(kind, key) {
+    const cur = this.state.subs[kind] || [];
+    const next = cur.includes(key) ? cur.filter(x => x !== key) : [...cur, key];
+    this.setState({ subs: { ...this.state.subs, [kind]: next } });
+  }
+  setPlan(p) { this.setState({ plan: p, upgradeOpen: false }); }
+
+  accessBadgeStyle(access, dark) {
+    const map = {
+      Free:    { bg: dark ? '#26362d' : '#e2efe8', fg: dark ? '#6cbf92' : '#3f7d5c' },
+      Members: { bg: dark ? '#2f3a4a' : '#e6eef6', fg: dark ? '#7fb2e6' : '#1f5a92' },
+      Premium: { bg: dark ? '#3d3421' : '#faf0da', fg: dark ? '#e0b46a' : '#9a7420' }
+    };
+    const c = map[access] || map.Free;
+    return { display:'inline-block', padding:'3px 11px', borderRadius:'99px', fontWeight:700, fontSize:'0.8em', background: c.bg, color: c.fg };
+  }
+
+  subTabStyle(active, accent, accentDark) {
+    return { padding:'10px 20px', borderRadius:'99px', border: active ? '2px solid '+accent : '2px solid var(--line,#ddd4c6)', background: active ? accent : 'transparent', color: active ? '#fff' : 'var(--muted,#6b635a)', cursor:'pointer', fontWeight:700, fontSize:'1em', fontFamily:'inherit', minHeight:'44px' };
+  }
+
+  computeTier() {
+    const a = this.state.answers;
+    if (a.surgery === 'yes' || a.dizzy === 'often' || a.mobility === 'seated') return 'Seated';
+    if (a.mobility === 'supported' || a.dizzy === 'sometimes' || a.joints === 'significant' || a.joints === 'little') return 'Supported';
+    return 'Active';
+  }
+
+  renderVals() {
+    const s = this.state;
+    const hc = s.hc;
+    const scale = [16, 20, 24][s.scaleIdx];
+    const sysDark = (typeof window !== 'undefined' && window.matchMedia) ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
+    const dark = s.themeMode === 'dark' || (s.themeMode === 'system' && sysDark);
+
+    const lightPh = 'repeating-linear-gradient(45deg,#e7ded0,#e7ded0 14px,#ded4c4 14px,#ded4c4 28px)';
+    const darkPh = 'repeating-linear-gradient(45deg,#37322c,#37322c 14px,#302b26 14px,#302b26 28px)';
+
+    let pal;
+    if (hc) {
+      pal = { bg:'#ffffff', surface:'#ffffff', fg:'#000000', muted:'#333333', line:'#000000', accent:'#004a99', accentDark:'#003570', accentSoft:'#dbe6f2', success:'#0a5c34', successSoft:'#d6ece0', ph: dark ? darkPh : lightPh };
+    } else if (dark) {
+      pal = { bg:'#201d1a', surface:'#2b2723', fg:'#f0ebe3', muted:'#a89f92', line:'#3d3833', accent:'#5b9bd8', accentDark:'#8fbde6', accentSoft:'#2f3a45', success:'#6cbf92', successSoft:'#26362d', ph: darkPh };
+    } else {
+      pal = { bg:'#f2ece0', surface:'#fbf8f2', fg:'#2c2824', muted:'#6b635a', line:'#ddd4c6', accent:'#2a6fb0', accentDark:'#1f5a92', accentSoft:'#e6eef6', success:'#3f7d5c', successSoft:'#e2efe8', ph: lightPh };
+    }
+    const accent = pal.accent;
+    const accentDark = pal.accentDark;
+    const rootStyle = {
+      '--bg': pal.bg,
+      '--surface': pal.surface,
+      '--fg': pal.fg,
+      '--muted': pal.muted,
+      '--line': pal.line,
+      '--accent': pal.accent,
+      '--accent-dark': pal.accentDark,
+      '--accent-soft': pal.accentSoft,
+      '--success': pal.success,
+      '--success-soft': pal.successSoft,
+      '--ph': pal.ph,
+      fontSize: scale + 'px'
+    };
+
+    const seg = (active) => ({ display:'flex', alignItems:'center', justifyContent:'center', width:'44px', height:'40px', padding:0, borderRadius:'9px', border:'none', cursor:'pointer', fontFamily:'inherit', background: active ? 'var(--surface)' : 'transparent', color: active ? accentDark : 'var(--muted)', boxShadow: active ? '0 1px 3px rgba(0,0,0,.18)' : 'none' });
+
+    const navHoverStyle = { background: 'var(--accent-soft,#e6eef6)' };
+    const cardHover = { borderColor: accent, transform: 'translateY(-3px)' };
+    const rowHover = { background: 'var(--accent-soft,#e6eef6)' };
+
+    // accessibility scale buttons
+    const scaleBtn = (idx, size) => ({
+      flex: 1, padding: '12px 0', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit',
+      fontWeight: 700, fontSize: size,
+      border: '2px solid ' + (s.scaleIdx === idx ? accent : 'var(--line,#ddd4c6)'),
+      background: s.scaleIdx === idx ? 'var(--accent-soft,#e6eef6)' : 'transparent',
+      color: s.scaleIdx === idx ? accentDark : 'var(--fg,#2c2824)'
+    });
+    const toggleTrack = (on) => ({ width:'62px', height:'34px', borderRadius:'99px', border:'none', cursor:'pointer', padding:'3px', display:'flex', background: on ? accent : '#c9bfae', justifyContent: on ? 'flex-end' : 'flex-start' });
+    const knob = { width:'28px', height:'28px', borderRadius:'50%', background:'#fff', display:'block' };
+
+    // intake
+    const q = this.questions[s.intakeStep - 1];
+    const intakeWelcome = s.screen === 'intake' && s.intakeStep === 0;
+    const intakeResult = s.screen === 'intake' && s.intakeStep > this.questions.length;
+    const intakeQuestioning = s.screen === 'intake' && s.intakeStep >= 1 && s.intakeStep <= this.questions.length;
+    let question = null, nextEnabled = false;
+    if (q) {
+      const sel = s.answers[q.key];
+      question = { text: q.text, options: q.opts.map(o => {
+        const on = sel === o.v;
+        return {
+          label: o.label,
+          choose: () => this.setState({ answers: { ...s.answers, [q.key]: o.v } }),
+          style: {
+            display:'flex', alignItems:'center', gap:'16px', width:'100%', textAlign:'left',
+            padding:'20px 22px', borderRadius:'14px', cursor:'pointer', fontFamily:'inherit',
+            fontSize:'1.15em', fontWeight:600,
+            border:'2px solid ' + (on ? accent : 'var(--line,#ddd4c6)'),
+            background: on ? 'var(--accent-soft,#e6eef6)' : 'transparent',
+            color:'var(--fg,#2c2824)'
+          },
+          dotStyle: {
+            width:'26px', height:'26px', borderRadius:'50%', flexShrink:0,
+            border:'3px solid ' + (on ? accent : '#c9bfae'),
+            background: on ? accent : 'transparent',
+            boxShadow: on ? 'inset 0 0 0 3px #fff' : 'none'
+          }
+        };
+      }) };
+      nextEnabled = sel != null;
+    }
+    const totalSteps = this.questions.length + 1;
+    const barPct = intakeWelcome ? 4 : (intakeResult ? 100 : (s.intakeStep / totalSteps) * 100);
+    const intakeBarStyle = { height:'100%', width: barPct + '%', background: accent, borderRadius:'99px', transition:'width .3s ease' };
+    const intakeProgress = intakeResult ? 'All done!' : (intakeWelcome ? 'Welcome' : 'Question ' + s.intakeStep + ' of ' + this.questions.length);
+    const nextBtnStyle = {
+      padding:'16px 34px', borderRadius:'12px', border:'none', fontFamily:'inherit',
+      fontSize:'1.1em', fontWeight:700, minHeight:'56px',
+      cursor: nextEnabled ? 'pointer' : 'not-allowed',
+      background: nextEnabled ? accent : '#c9bfae',
+      color:'#fff', opacity: nextEnabled ? 1 : 0.7
+    };
+    const tier = s.hasTier ? s.tier : (intakeResult ? this.computeTier() : '');
+    const tierDescMap = {
+      Seated: 'You\u2019ll begin with calming, seated movements that build balance and confidence safely from your chair.',
+      Supported: 'You\u2019ll practice standing movements with a wall or chair nearby for steady, secure support.',
+      Active: 'You\u2019re ready for free-standing practice. We\u2019ll still keep every movement slow, gentle, and controlled.'
+    };
+
+    // mood
+    const moodLabels = { 1:'Stiff and tired \u2014 we\u2019ll keep it very gentle today.', 2:'A little low \u2014 easy does it.', 3:'Feeling okay \u2014 a good day to move.', 4:'Feeling good \u2014 nicely warmed up.', 5:'Strong and ready \u2014 wonderful!' };
+
+    // day dots
+    const dayDot = { width:'40px', height:'40px', borderRadius:'50%', background:accent, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'0.95em' };
+    const dayDotEmpty = { width:'40px', height:'40px', borderRadius:'50%', background:'transparent', color:'var(--muted,#6b635a)', border:'2px solid var(--line,#ddd4c6)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'0.95em' };
+
+    // library filter chips
+    const libCats = ['All videos', 'Balance', 'Breathing', 'Joint health', 'Safety', 'Seated'];
+    const libChips = libCats.map(c => {
+      const active = s.libFilter === c;
+      return {
+        label: c === 'Seated' ? 'Seated only' : c,
+        choose: () => this.setState({ libFilter: c }),
+        style: {
+          padding:'12px 22px', borderRadius:'99px', fontWeight:600, fontSize:'1.05em', fontFamily:'inherit', cursor:'pointer', minHeight:'48px', transition:'background .2s ease',
+          background: active ? accent : 'transparent',
+          color: active ? '#fff' : 'var(--fg,#2c2824)',
+          border: active ? '2px solid ' + accent : '2px solid var(--line,#ddd4c6)'
+        }
+      };
+    });
+    const _chipUnused = { padding:'12px 22px', borderRadius:'99px', background:'transparent', border:'2px solid var(--line,#ddd4c6)', color:'var(--fg,#2c2824)', fontWeight:600, fontSize:'1.05em', cursor:'pointer' };
+
+    // ---- dashboard charts ----
+    const weekly = [15, 28, 22, 40, 34, 52, 48, 66];
+    const yMax = 70;
+    const px0 = 48, px1 = 700, py0 = 20, py1 = 210;
+    const lineDots = weekly.map((v, i) => ({
+      cx: Math.round(px0 + (px1 - px0) * (i / (weekly.length - 1))),
+      cy: Math.round(py1 - (v / yMax) * (py1 - py0))
+    }));
+    const linePoints = lineDots.map(d => d.cx + ',' + d.cy).join(' ');
+    const lineArea = 'M' + lineDots[0].cx + ',' + py1 + ' L' + lineDots.map(d => d.cx + ',' + d.cy).join(' L') + ' L' + lineDots[lineDots.length - 1].cx + ',' + py1 + ' Z';
+    const lineLabels = weekly.map((v, i) => ({ x: lineDots[i].cx, label: 'W' + (i + 1) }));
+
+    const focusData = [
+      { label: 'Balance', value: 40, color: dark ? '#5b9bd8' : '#2a6fb0' },
+      { label: 'Breathing', value: 25, color: dark ? '#6cbf92' : '#3f7d5c' },
+      { label: 'Joint health', value: 20, color: dark ? '#d69a9a' : '#c07a5a' },
+      { label: 'Safety', value: 15, color: dark ? '#e0b46a' : '#c99a3a' }
+    ];
+    const C = 2 * Math.PI * 70;
+    let acc = 0;
+    const donutSegs = focusData.map(f => {
+      const len = (f.value / 100) * C;
+      const seg = { label: f.label, color: f.color, pctLabel: f.value + '%', dash: len.toFixed(1) + ' ' + (C - len).toFixed(1), offset: (-acc).toFixed(1) };
+      acc += len;
+      return seg;
+    });
+
+    // ---- my library ----
+    const V = this.videosData;
+    const savedLists = {
+      subscribed: [
+        { v: V[0], tag: 'Subscribed', tagIcon: '\u2713', prog: 65 },
+        { v: V[1], tag: 'Subscribed', tagIcon: '\u2713', prog: 30 },
+        { v: V[4], tag: 'Subscribed', tagIcon: '\u2713', prog: 10 }
+      ],
+      liked: [
+        { v: V[2], tag: 'Liked', tagIcon: '\u2661', prog: 100 },
+        { v: V[5], tag: 'Liked', tagIcon: '\u2661', prog: 45 },
+        { v: V[0], tag: 'Liked', tagIcon: '\u2661', prog: 65 }
+      ],
+      favorites: [
+        { v: V[3], tag: 'Favorite', tagIcon: '\u2605', prog: 80 },
+        { v: V[1], tag: 'Favorite', tagIcon: '\u2605', prog: 30 }
+      ]
+    };
+    const libTabDefs = [
+      { key: 'subscribed', label: 'Subscribed' },
+      { key: 'liked', label: 'Liked' },
+      { key: 'favorites', label: 'Favorites' }
+    ];
+    const libTabs = libTabDefs.map(t => {
+      const active = s.libraryTab === t.key;
+      return {
+        label: t.label + ' (' + savedLists[t.key].length + ')',
+        choose: () => this.setState({ libraryTab: t.key }),
+        style: {
+          padding:'12px 24px', borderRadius:'99px', fontWeight:700, fontSize:'1.05em', fontFamily:'inherit', cursor:'pointer', minHeight:'48px', transition:'background .2s ease',
+          background: active ? accent : 'transparent', color: active ? '#fff' : 'var(--fg,#2c2824)',
+          border: active ? '2px solid ' + accent : '2px solid var(--line,#ddd4c6)'
+        }
+      };
+    });
+    const myLibItems = (savedLists[s.libraryTab] || []).map(item => ({
+      title: item.v.title, duration: item.v.duration, tag: item.tag, tagIcon: item.tagIcon,
+      meta: item.v.intensity + ' \u00b7 ' + item.v.stance + ' \u00b7 ' + item.v.focus,
+      progressLabel: item.prog >= 100 ? 'Completed' : item.prog + '% watched',
+      progressStyle: { height:'100%', width: item.prog + '%', background: item.prog >= 100 ? (dark ? '#6cbf92' : '#3f7d5c') : accent, borderRadius:'99px' },
+      open: () => this.openVideo(item.v.title)
+    }));
+
+    // ---- member: plan, subscriptions, notifications, new-for-you ----
+    const planMeta = {
+      Basic:   { label: 'Basic', badge: dark ? '#3d3833' : '#eae3d6', badgeText: 'var(--muted,#6b635a)', desc: 'Free videos only.' },
+      Member:  { label: 'Member', badge: dark ? '#26362d' : '#e2efe8', badgeText: dark ? '#6cbf92' : '#3f7d5c', desc: 'Free and Members-only videos.' },
+      Premium: { label: 'Premium', badge: dark ? '#3d3421' : '#faf0da', badgeText: dark ? '#e0b46a' : '#9a7420', desc: 'Everything, including premium masterclasses.' }
+    };
+    const planCards = [
+      { key: 'Basic', name: 'Basic', price: 'Free', perks: ['All free videos', 'Progress tracking', 'Health check-in'] },
+      { key: 'Member', name: 'Member', price: '$9 / mo', perks: ['Everything in Basic', 'Members-only classes', 'Subscribe to masters & levels'] },
+      { key: 'Premium', name: 'Premium', price: '$19 / mo', perks: ['Everything in Member', 'Premium masterclasses', 'Early access to new videos'] }
+    ].map(p => ({
+      ...p,
+      current: s.plan === p.key,
+      notCurrent: s.plan !== p.key,
+      isDowngrade: this.planRank(p.key) < this.planRank(s.plan),
+      choose: () => this.setPlan(p.key),
+      cardStyle: { border: s.plan === p.key ? '3px solid ' + accent : '2px solid var(--line,#ddd4c6)', borderRadius:'16px', padding:'22px', background: 'var(--bg,#f2ece0)', display:'flex', flexDirection:'column', gap:'6px' }
+    }));
+
+    // subscription controls
+    const subChip = (on) => ({ display:'inline-flex', alignItems:'center', gap:'8px', padding:'10px 16px', borderRadius:'99px', cursor:'pointer', fontWeight:700, fontSize:'0.98em', fontFamily:'inherit', minHeight:'44px',
+      border: on ? '2px solid ' + accent : '2px solid var(--line,#ddd4c6)', background: on ? accent : 'transparent', color: on ? '#fff' : 'var(--fg,#2c2824)' });
+    const subCategories = this.categoryFocus.map(c => { const on = s.subs.categories.includes(c); return { label: c, on, mark: on ? '\u2713' : '+', style: subChip(on), toggle: () => this.toggleSub('categories', c) }; });
+    const subMasters = this.masters.map(m => { const on = s.subs.masters.includes(m.name); return { label: 'Master ' + m.name, sub: m.style, on, mark: on ? '\u2713' : '+', style: subChip(on), toggle: () => this.toggleSub('masters', m.name) }; });
+    const subLevels = s.levels.map(l => { const on = s.subs.levels.includes(l.id); return { label: l.name, on, mark: on ? '\u2713' : '+', style: subChip(on), toggle: () => this.toggleSub('levels', l.id) }; });
+    const subCount = s.subs.categories.length + s.subs.masters.length + s.subs.levels.length;
+
+    // "new for you" — every catalog video that matches a subscription
+    const catalogAll = this.adminCatalog.concat(s.uploadedVideos);
+    const matchInfo = (title, category) => {
+      const meta = this.videosData.find(x => x.title === title);
+      const focus = category || (meta ? meta.focus : '');
+      const master = meta ? meta.master : null;
+      const lvl = s.levels.find(l => l.videos.includes(title));
+      const reasons = [];
+      if (s.subs.categories.includes(focus)) reasons.push(focus);
+      if (master && s.subs.masters.includes(master)) reasons.push('Master ' + master);
+      if (lvl && s.subs.levels.includes(lvl.id)) reasons.push(lvl.name);
+      return { reasons, focus, master, level: lvl ? lvl.name : null };
+    };
+    const newForYou = catalogAll.map(v => {
+      const info = matchInfo(v.title, v.category);
+      if (info.reasons.length === 0) return null;
+      const acc2 = s.videoAccess[v.title] || v.access;
+      const locked = !this.canView(v.title);
+      return {
+        title: v.title, duration: v.duration, access: acc2, locked, unlocked: !locked,
+        reason: 'Matches ' + info.reasons.slice(0, 2).join(' · '),
+        master: info.master ? 'Master ' + info.master : '',
+        badge: acc2, badgeStyle: this.accessBadgeStyle(acc2, dark),
+        posBadgeStyle: { position:'absolute', top:'12px', left:'12px', ...this.accessBadgeStyle(acc2, dark) },
+        open: () => this.openVideo(v.title)
+      };
+    }).filter(Boolean);
+
+    // notifications
+    const notifList = s.notifs.map(n => ({
+      id: n.id, title: n.title, reason: n.reason, time: n.time, unread: n.unread,
+      badge: n.access, badgeStyle: this.accessBadgeStyle(n.access, dark),
+      locked: this.planRank(s.plan) < this.accessRank(n.access),
+      open: () => this.openVideo(n.title),
+      rowStyle: { display:'flex', gap:'12px', alignItems:'flex-start', padding:'14px 16px', borderBottom:'1px solid var(--line,#ddd4c6)', background: n.unread ? (dark ? 'rgba(91,155,216,.10)' : '#eef4fb') : 'transparent', cursor:'pointer', width:'100%', textAlign:'left', border:'none', borderBottomWidth:'1px', borderBottomStyle:'solid', fontFamily:'inherit', color:'inherit' }
+    }));
+    const unreadCount = s.notifs.filter(n => n.unread).length;
+
+    // upgrade modal context
+    const lockedAccess = s.lockedTitle ? (s.videoAccess[s.lockedTitle] || (catalogAll.find(v => v.title === s.lockedTitle) || {}).access || 'Members') : 'Members';
+    const neededPlan = lockedAccess === 'Premium' ? 'Premium' : 'Member';
+
+    // ---- admin ----
+    const th = { textAlign:'left', padding:'12px 12px', borderBottom:'2px solid var(--line,#ddd4c6)', color:'var(--muted,#6b635a)', fontWeight:700, fontSize:'0.92em', whiteSpace:'nowrap' };
+    const td = { padding:'13px 12px', borderBottom:'1px solid var(--line,#ddd4c6)', verticalAlign:'middle' };
+    const inputStyle = { width:'100%', padding:'12px 14px', borderRadius:'10px', border:'2px solid var(--line,#ddd4c6)', background:'var(--bg,#f2ece0)', color:'var(--fg,#2c2824)', fontSize:'1.02em', fontFamily:'inherit', boxSizing:'border-box' };
+    const selectSmall = { padding:'8px 12px', borderRadius:'8px', border:'2px solid var(--line,#ddd4c6)', background:'var(--bg,#f2ece0)', color:'var(--fg,#2c2824)', fontSize:'0.98em', fontFamily:'inherit', fontWeight:600 };
+    const pdfBtn = { display:'inline-flex', alignItems:'center', gap:'8px', padding:'11px 18px', borderRadius:'12px', background:'transparent', border:'2px solid var(--accent,#2a6fb0)', color:'var(--accent-dark,#1f5a92)', cursor:'pointer', fontWeight:700, fontSize:'0.98em', fontFamily:'inherit', minHeight:'46px' };
+    const planColors = { Free:{ bg: dark?'#3d3833':'#eae3d6', fg:'var(--muted,#6b635a)' }, Members:{ bg: dark?'#2f3a45':'#e6eef6', fg:'var(--accent-dark,#1f5a92)' }, Premium:{ bg: dark?'#3a3145':'#ede4f4', fg: dark?'#c8a8e0':'#6b4f9e' } };
+    const planBadge = (p) => ({ display:'inline-block', padding:'4px 12px', borderRadius:'99px', fontWeight:700, fontSize:'0.88em', background: (planColors[p]||planColors.Free).bg, color: (planColors[p]||planColors.Free).fg });
+    const statusColors = { Active:{ bg: dark?'#26362d':'#e2efe8', fg: dark?'#6cbf92':'#3f7d5c' }, 'At risk':{ bg: dark?'#3d3421':'#faf0da', fg: dark?'#e0b46a':'#9a7420' }, Inactive:{ bg: dark?'#3d3833':'#eae3d6', fg:'var(--muted,#6b635a)' } };
+    const statusBadge = (st) => ({ display:'inline-block', padding:'4px 12px', borderRadius:'99px', fontWeight:700, fontSize:'0.88em', background: (statusColors[st]||statusColors.Inactive).bg, color: (statusColors[st]||statusColors.Inactive).fg });
+
+    const trackOptions = ['All classes','Seated','Supported','Active'];
+    const planOptions = ['All plans','Free','Members','Premium'];
+    const categoryOptions = ['Balance','Breathing','Joint health','Safety','Seated fundamentals'];
+    const amin = s.fAgeMin === '' ? null : parseInt(s.fAgeMin);
+    const amax = s.fAgeMax === '' ? null : parseInt(s.fAgeMax);
+    const filteredUsers = this.usersData.filter(u => {
+      if (s.fName && !u.name.toLowerCase().includes(s.fName.toLowerCase())) return false;
+      if (s.fTrack !== 'All classes' && u.track !== s.fTrack) return false;
+      if (s.fPlan !== 'All plans' && u.plan !== s.fPlan) return false;
+      if (amin != null && u.age < amin) return false;
+      if (amax != null && u.age > amax) return false;
+      return true;
+    });
+    const reportUsers = filteredUsers.map(u => ({
+      ...u,
+      planStyle: planBadge(u.plan),
+      statusStyle: statusBadge(u.status),
+      progStyle: { display:'block', height:'100%', width: u.progress + '%', background: accent, borderRadius:'99px' }
+    }));
+    const userCount = 'Showing ' + filteredUsers.length + ' of ' + this.usersData.length + ' members';
+
+    // signup bar chart
+    const signups = [42,58,63,80,74,96,110,128];
+    const smMonths = ['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+    const smMax = 140, sx0 = 44, sx1 = 740, sTop = 20, sBot = 200;
+    const slot = (sx1 - sx0) / signups.length;
+    const barW = slot * 0.56;
+    const signupBars = signups.map((v, i) => {
+      const cx = sx0 + slot * i + slot / 2;
+      const h = Math.round((v / smMax) * (sBot - sTop));
+      const y = sBot - h;
+      return { x: Math.round(cx - barW/2), y, w: Math.round(barW), h, cx: Math.round(cx), ty: y - 8, label: smMonths[i], value: v };
+    });
+
+    // video catalog (with access overrides + uploads)
+    const adminVideos = this.adminCatalog.concat(s.uploadedVideos).map(v => {
+      const acc = s.videoAccess[v.title] || v.access;
+      return {
+        title: v.title, category: v.category, duration: v.duration, access: acc, status: v.status,
+        setAccess: (e) => this.setState({ videoAccess: { ...s.videoAccess, [v.title]: e.target.value } }),
+        statusStyle: { display:'inline-block', padding:'4px 12px', borderRadius:'99px', fontWeight:700, fontSize:'0.88em',
+          background: v.status === 'Published' ? (dark?'#26362d':'#e2efe8') : (v.status === 'Processing' ? (dark?'#3d3421':'#faf0da') : (dark?'#3d3833':'#eae3d6')),
+          color: v.status === 'Published' ? (dark?'#6cbf92':'#3f7d5c') : (v.status === 'Processing' ? (dark?'#e0b46a':'#9a7420') : 'var(--muted,#6b635a)') }
+      };
+    });
+
+    // skill levels
+    const allVideoTitles = this.adminCatalog.concat(s.uploadedVideos).map(v => v.title);
+    const durLookup = {};
+    this.adminCatalog.concat(s.uploadedVideos).forEach(v => { durLookup[v.title] = v.duration; });
+    const levels = s.levels.map((lv, i) => ({
+      id: lv.id, name: lv.name, desc: lv.desc,
+      badge: 'LVL ' + i,
+      count: lv.videos.length + (lv.videos.length === 1 ? ' video' : ' videos'),
+      videos: lv.videos.map(t => ({ title: t, duration: durLookup[t] || '' })),
+      empty: lv.videos.length === 0,
+      edit: () => this.setState({ levelModalOpen: true, editLevelId: lv.id, lvName: lv.name, lvDesc: lv.desc, lvVideos: [...lv.videos] }),
+      remove: () => this.setState({ levels: s.levels.filter(x => x.id !== lv.id) })
+    }));
+    const levelModalTitle = s.editLevelId ? 'Edit level' : 'New skill level';
+    const levelPicks = allVideoTitles.map(t => ({
+      title: t, duration: durLookup[t] || '',
+      checked: s.lvVideos.includes(t),
+      toggle: () => this.setState({ lvVideos: s.lvVideos.includes(t) ? s.lvVideos.filter(x => x !== t) : [...s.lvVideos, t] })
+    }));
+    const openNewLevel = () => this.setState({ levelModalOpen: true, editLevelId: null, lvName: 'Level ' + s.levels.length + ' — ', lvDesc: '', lvVideos: [] });
+    const closeLevelModal = () => this.setState({ levelModalOpen: false });
+    const saveLevel = () => {
+      const name = s.lvName.trim() || ('Level ' + s.levels.length);
+      if (s.editLevelId) {
+        this.setState({ levels: s.levels.map(x => x.id === s.editLevelId ? { ...x, name, desc: s.lvDesc, videos: s.lvVideos } : x), levelModalOpen: false });
+      } else {
+        this.setState({ levels: [...s.levels, { id: 'lv' + Date.now(), name, desc: s.lvDesc, videos: s.lvVideos }], levelModalOpen: false });
+      }
+    };
+
+    // admin tabs
+    const adminTabDefs = [{ key:'reports', label:'Reports & Impact' }, { key:'videos', label:'Videos' }, { key:'users', label:'Members' }];
+    const adminTabs = adminTabDefs.map(t => {
+      const active = s.adminTab === t.key;
+      return { label: t.label, choose: () => this.setState({ adminTab: t.key }),
+        style: { padding:'14px 22px', border:'none', borderBottom: active ? '3px solid ' + accent : '3px solid transparent', background:'none', cursor:'pointer', fontWeight:700, fontSize:'1.08em', fontFamily:'inherit', color: active ? accentDark : 'var(--muted,#6b635a)', marginBottom:'-2px' } };
+    });
+
+    // print view
+    const printing = s.printView != null;
+    let printHeaders = [], printRows = [], printTitle = '', printFilterNote = '';
+    if (s.printView === 'users') {
+      printTitle = 'Member Progress Report';
+      printHeaders = ['Name','Age','Class','Plan','Sessions','Progress','Last active','Status'];
+      printRows = filteredUsers.map(u => ({ cells: [u.name, String(u.age), u.track, u.plan, String(u.sessions), u.progress + '%', u.active, u.status] }));
+      const parts = [];
+      if (s.fName) parts.push('name “' + s.fName + '”');
+      if (s.fTrack !== 'All classes') parts.push('class ' + s.fTrack);
+      if (s.fPlan !== 'All plans') parts.push('plan ' + s.fPlan);
+      if (amin != null || amax != null) parts.push('age ' + (amin != null ? amin : '0') + '–' + (amax != null ? amax : '∞'));
+      printFilterNote = parts.length ? ' · Filtered by ' + parts.join(', ') : ' · All members';
+    } else if (s.printView === 'videos') {
+      printTitle = 'Video Catalog';
+      printHeaders = ['Title','Category','Duration','Access level','Status'];
+      printRows = adminVideos.map(v => ({ cells: [v.title, v.category, v.duration, v.access, v.status] }));
+    }
+
+    // videos (filtered)
+    const filteredVideos = this.videosData.filter(v => {
+      if (s.libFilter === 'All videos') return true;
+      if (s.libFilter === 'Seated') return v.stance === 'Seated';
+      return v.focus === s.libFilter;
+    });
+    const videos = filteredVideos.map(v => {
+      const acc2 = this.accessForTitle(v.title);
+      return { ...v, access: acc2, locked: !this.canView(v.title), unlocked: this.canView(v.title), badgeStyle: this.accessBadgeStyle(acc2, dark), posBadgeStyle: { position:'absolute', top:'12px', left:'12px', ...this.accessBadgeStyle(acc2, dark) }, open: () => this.openVideo(v.title) };
+    });
+    const libCount = filteredVideos.length === this.videosData.length
+      ? 'Showing all ' + filteredVideos.length + ' videos'
+      : 'Showing ' + filteredVideos.length + ' ' + (filteredVideos.length === 1 ? 'video' : 'videos') + ' in “' + (s.libFilter === 'Seated' ? 'Seated only' : s.libFilter) + '”';
+
+    // player
+    const subsBtnStyle = {
+      background: s.showSubs ? accent : '#3a342d', color:'#fff', border:'none', cursor:'pointer',
+      padding:'14px 22px', borderRadius:'12px', fontSize:'1.05em', fontWeight:600, fontFamily:'inherit', minHeight:'56px'
+    };
+    const progressStyle = { height:'100%', width: s.progress + '%', background: accent, borderRadius:'99px' };
+    const transcript = this.transcriptData.map((l) => {
+      const active = l.text === s.activeCaption;
+      return {
+        time: l.t, text: l.text,
+        seek: () => this.setState({ activeCaption: l.text, playing: true, progress: parseInt(l.t.split(':')[0])*20 + 20 }),
+        style: {
+          display:'flex', alignItems:'flex-start', width:'100%', textAlign:'left', border:'none',
+          borderRadius:'10px', padding:'14px 14px', cursor:'pointer', fontFamily:'inherit', fontSize:'1.08em',
+          lineHeight:1.5, background: active ? 'var(--accent-soft,#e6eef6)' : 'transparent',
+          color:'var(--fg,#2c2824)'
+        }
+      };
+    });
+
+    // syllabus
+    let totalLessons = 0, doneCount = 0;
+    this.chaptersData.forEach((c, ci) => c.lessons.forEach((l, li) => { totalLessons++; if (s.doneLessons[ci+'-'+li]) doneCount++; }));
+    const chapters = this.chaptersData.map((c, ci) => {
+      const open = s.openChapter === ci;
+      const done = c.lessons.filter((l, li) => s.doneLessons[ci+'-'+li]).length;
+      return {
+        title: c.title,
+        meta: done + ' of ' + c.lessons.length + ' complete',
+        open,
+        toggle: () => this.setState({ openChapter: open ? -1 : ci }),
+        chevStyle: { display:'flex', color:'var(--muted,#6b635a)', transform: open ? 'rotate(90deg)' : 'none', transition:'transform .2s ease' },
+        lessons: c.lessons.map((l, li) => {
+          const d = !!s.doneLessons[ci+'-'+li];
+          const isCurrent = l.title === s.currentVideo;
+          return {
+            title: l.title, duration: l.duration,
+            select: () => this.setState({ currentVideo: l.title, playing:true }),
+            rowStyle: {
+              display:'flex', alignItems:'center', gap:'14px', width:'100%', textAlign:'left', border:'none',
+              borderRadius:'10px', padding:'14px 12px', cursor:'pointer', fontFamily:'inherit', fontSize:'1.05em', fontWeight: isCurrent ? 700 : 500,
+              background: isCurrent ? 'var(--accent-soft,#e6eef6)' : 'transparent', color:'var(--fg,#2c2824)'
+            },
+            checkStyle: {
+              width:'28px', height:'28px', borderRadius:'50%', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center',
+              background: d ? 'var(--success,#3f7d5c)' : 'transparent', color:'#fff',
+              border: d ? 'none' : '2px solid #c9bfae'
+            }
+          };
+        })
+      };
+    });
+
+    return {
+      rootStyle, navHoverStyle, cardHover, rowHover,
+      navHome: () => this.go('landing'),
+      navDash: () => this.go('dashboard'),
+      navLib: () => this.go('library'),
+      navAbout: () => this.go('about'),
+      navBlog: () => this.go('blog'),
+      navLogin: () => this.go('login'),
+      doLogin: () => this.setState({ screen:'dashboard', loggedIn:true, hasTier:true, tier: s.tier || 'Supported', accessOpen:false }),
+      onAbout: s.screen === 'about',
+      onBlog: s.screen === 'blog',
+      onLogin: s.screen === 'login',
+      loggedOut: !s.loggedIn,
+      team: this.teamData.map((m, i) => {
+        const active = s.hoveredTeam === i;
+        const any = s.hoveredTeam !== null && s.hoveredTeam !== undefined;
+        return {
+          ...m,
+          bg: this.teamColors[i % this.teamColors.length],
+          slotId: 'team-photo-' + i,
+          onEnter: () => this.setState({ hoveredTeam: i }),
+          onLeave: () => this.setState({ hoveredTeam: null }),
+          cardStyle: 'position:relative; flex:' + (active ? '6.5' : (any ? '0.85' : '1')) + ' 1 0; min-width:64px; height:100%; border-radius:18px; overflow:hidden; border:2px solid var(--line,#ddd4c6); cursor:pointer; transition:flex .45s cubic-bezier(.4,0,.2,1);',
+          nameStyle: 'margin:0; font-size:' + (active ? '1.5em' : '1.15em') + '; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 2px 8px rgba(0,0,0,.5); transition:font-size .3s ease;',
+          detailStyle: 'overflow:hidden; max-width:520px; max-height:' + (active ? '260px' : '0') + '; opacity:' + (active ? '1' : '0') + '; transition:max-height .45s ease, opacity .35s ease;'
+        };
+      }),
+      students: [
+        { bg: '#2ea3d8', slotId: 'student-photo-0' },
+        { bg: '#e8a13a', slotId: 'student-photo-1' },
+        { bg: '#2fa89b', slotId: 'student-photo-2' }
+      ],
+      posts: this.postsData.map(p => ({ ...p, open: () => this.go('blog') })),
+      startIntake: () => this.setState({ screen:'intake', intakeStep:0, accessOpen:false }),
+
+      // landing carousel
+      features: this.featuresData.map((f, i) => {
+        const active = s.featureIdx === i;
+        const offset = i - s.featureIdx;
+        return {
+          icon: f.icon, kicker: f.kicker, title: f.title, desc: f.desc, clip: f.clip, ctaLabel: f.ctaLabel,
+          cta: () => this.go(f.act === 'intake' ? 'intake' : f.act === 'dash' ? 'dashboard' : 'library'),
+          goto: () => this.bumpCarousel(i),
+          slideStyle: {
+            position:'absolute', inset:0,
+            opacity: active ? 1 : 0,
+            transform: 'translateX(' + (offset * 6) + '%) scale(' + (active ? 1 : 0.96) + ')',
+            pointerEvents: active ? 'auto' : 'none',
+            transition: 'opacity .55s ease, transform .55s ease'
+          },
+          dotStyle: {
+            height:'12px', width: active ? '38px' : '12px', borderRadius:'99px', border:'none', cursor:'pointer', padding:0,
+            background: active ? accent : 'var(--line,#ddd4c6)', transition:'width .35s ease, background .35s ease'
+          }
+        };
+      }),
+      exploreChips: this.exploreCats.map(c => {
+        const active = s.exploreFilter === c;
+        return {
+          label: c,
+          choose: () => this.setState({ exploreFilter: c }),
+          style: {
+            padding:'12px 22px', borderRadius:'99px', border: active ? 'none' : '2px solid var(--line,#ddd4c6)',
+            background: active ? accent : 'var(--surface,#fbf8f2)', color: active ? '#fff' : 'var(--fg,#2c2824)',
+            fontWeight:700, fontSize:'1.05em', fontFamily:'inherit', cursor:'pointer', minHeight:'48px', transition:'background .2s ease'
+          }
+        };
+      }),
+      exploreCards: this.collectionsData
+        .filter(c => c.cats.includes(s.exploreFilter))
+        .slice(0, 4)
+        .map(c => ({
+          title: c.title, sub: c.sub, badge: c.badge, hasBadge: !!c.badge,
+          open: () => this.go('library'),
+          style: {
+            position:'relative', display:'flex', flexDirection:'column', textAlign:'left',
+            minHeight:'340px', padding:'22px', borderRadius:'20px', border:'none', cursor:'pointer',
+            background: c.grad, boxShadow:'0 8px 24px rgba(0,0,0,.14)', fontFamily:'inherit'
+          }
+        })),
+      prevFeature: () => this.bumpCarousel((s.featureIdx - 1 + this.featuresData.length) % this.featuresData.length),
+      nextFeature: () => this.bumpCarousel((s.featureIdx + 1) % this.featuresData.length),
+      pauseCarousel: () => this.stopCarousel(),
+      resumeCarousel: () => this.startCarousel(),
+      openFeatured: () => this.setState({ screen:'player', currentVideo:'Seated Balance & Breathing', accessOpen:false, playing:false }),
+
+      hasTier: s.hasTier, tier,
+
+      // theme mode
+      setLight: () => this.setState({ themeMode: 'light' }),
+      setDark: () => this.setState({ themeMode: 'dark' }),
+      setSystem: () => this.setState({ themeMode: 'system' }),
+      segLight: seg(s.themeMode === 'light'),
+      segDark: seg(s.themeMode === 'dark'),
+      segSystem: seg(s.themeMode === 'system'),
+
+      // accessibility
+      accessOpen: s.accessOpen,
+      toggleAccess: () => this.setState({ accessOpen: !s.accessOpen }),
+      toggleHc: () => this.setState({ hc: !s.hc }),
+      toggleTts: () => { const on = !s.tts; this.setState({ tts: on }); if (on) setTimeout(() => this.speakHeading(), 60); else try { window.speechSynthesis.cancel(); } catch(e){} },
+      setScaleS: () => this.setState({ scaleIdx: 0 }),
+      setScaleM: () => this.setState({ scaleIdx: 1 }),
+      setScaleL: () => this.setState({ scaleIdx: 2 }),
+      scaleBtnS: scaleBtn(0, '1em'), scaleBtnM: scaleBtn(1, '1.3em'), scaleBtnL: scaleBtn(2, '1.6em'),
+      hcToggleStyle: toggleTrack(s.hc), hcKnobStyle: knob,
+      ttsToggleStyle: toggleTrack(s.tts), ttsKnobStyle: knob,
+
+      // screens
+      onLanding: s.screen === 'landing',
+      onIntake: s.screen === 'intake',
+      onDashboard: s.screen === 'dashboard',
+      onLibrary: s.screen === 'library',
+      onPlayer: s.screen === 'player',
+
+      // intake
+      intakeWelcome, intakeQuestioning, intakeResult, question,
+      intakeBarStyle, intakeProgress, nextBtnStyle,
+      intakeNext: () => {
+        if (intakeQuestioning && !nextEnabled) return;
+        this.setState({ intakeStep: s.intakeStep + 1 });
+      },
+      intakeBack: () => this.setState({ intakeStep: Math.max(0, s.intakeStep - 1) }),
+      finishIntake: () => this.setState({ screen:'dashboard', hasTier:true, loggedIn:true, tier: this.computeTier(), accessOpen:false }),
+      loggedIn: s.loggedIn,
+      tierDesc: tierDescMap[tier] || '',
+      tierLocked: tier === 'Seated',
+
+      // dashboard
+      mood: s.mood,
+      setMood: (e) => this.setState({ mood: parseInt(e.target.value) }),
+      moodLabel: moodLabels[s.mood],
+      dayDot, dayDotEmpty,
+
+      // library
+      libChips, libCount, videos,
+      // admin
+      navAdminLogin: () => this.go('adminLogin'),
+      onAdminLogin: s.screen === 'adminLogin',
+      doAdminLogin: () => this.setState({ screen:'admin', adminTab:'reports', accessOpen:false }),
+      onAdmin: s.screen === 'admin',
+      adminLogout: () => this.go('landing'),
+      adminTabs,
+      adminReports: s.adminTab === 'reports',
+      adminVideosTab: s.adminTab === 'videos',
+      adminUsersTab: s.adminTab === 'users',
+      // video sub-tabs + skill levels
+      videoSubCatalog: s.videoSubTab === 'catalog',
+      videoSubLevels: s.videoSubTab === 'levels',
+      showCatalogSub: () => this.setState({ videoSubTab: 'catalog' }),
+      showLevelsSub: () => this.setState({ videoSubTab: 'levels' }),
+      catalogSubStyle: this.subTabStyle(s.videoSubTab === 'catalog', accent, accentDark),
+      levelsSubStyle: this.subTabStyle(s.videoSubTab === 'levels', accent, accentDark),
+      levels, levelCount: s.levels.length,
+      openNewLevel, closeLevelModal, saveLevel,
+      levelModalOpen: s.levelModalOpen, levelModalTitle, levelPicks,
+      lvName: s.lvName, lvDesc: s.lvDesc,
+      lvPickCount: s.lvVideos.length + (s.lvVideos.length === 1 ? ' video selected' : ' videos selected'),
+      setLvName: (e) => this.setState({ lvName: e.target.value }),
+      setLvDesc: (e) => this.setState({ lvDesc: e.target.value }),
+      th, td, inputStyle, selectSmall, pdfBtn,
+      trackOptions, planOptions, categoryOptions,
+      fName: s.fName, fTrack: s.fTrack, fPlan: s.fPlan, fAgeMin: s.fAgeMin, fAgeMax: s.fAgeMax,
+      setFName: (e) => this.setState({ fName: e.target.value }),
+      setFTrack: (e) => this.setState({ fTrack: e.target.value }),
+      setFPlan: (e) => this.setState({ fPlan: e.target.value }),
+      setFAgeMin: (e) => this.setState({ fAgeMin: e.target.value }),
+      setFAgeMax: (e) => this.setState({ fAgeMax: e.target.value }),
+      reportUsers, userCount, signupBars, adminVideos, videoTotal: adminVideos.length,
+      // upload modal
+      uploadOpen: s.uploadOpen,
+      openUpload: () => this.setState({ uploadOpen:true }),
+      closeUpload: () => this.setState({ uploadOpen:false }),
+      stopProp: (e) => e.stopPropagation(),
+      upTitle: s.upTitle, upCat: s.upCat, upAccess: s.upAccess, upDur: s.upDur, upIntensity: s.upIntensity,
+      setUpTitle: (e) => this.setState({ upTitle: e.target.value }),
+      setUpCat: (e) => this.setState({ upCat: e.target.value }),
+      setUpAccess: (e) => this.setState({ upAccess: e.target.value }),
+      setUpDur: (e) => this.setState({ upDur: e.target.value }),
+      setUpIntensity: (e) => this.setState({ upIntensity: e.target.value }),
+      submitUpload: () => {
+        const title = s.upTitle || 'Untitled video';
+        const newVid = { title, category: s.upCat, duration: s.upDur || '—', access: s.upAccess, status: 'Processing' };
+        const subscribed = s.subs.categories.includes(s.upCat);
+        const notifs = subscribed
+          ? [{ id: 'n' + Date.now(), title, reason: 'New in ' + s.upCat, access: s.upAccess, time: 'Just now', unread: true }, ...s.notifs]
+          : s.notifs;
+        this.setState({ uploadedVideos: [...s.uploadedVideos, newVid], notifs, uploadOpen:false, upTitle:'', upDur:'' });
+      },
+      // print / pdf
+      printing, notPrinting: !printing, printHeaders, printRows, printTitle, printFilterNote,
+      printDate: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
+      printUsers: () => { this.setState({ printView:'users' }); setTimeout(() => { try { window.print(); } catch(e){} }, 200); },
+      printVideos: () => { this.setState({ printView:'videos' }); setTimeout(() => { try { window.print(); } catch(e){} }, 200); },
+      cancelPrint: () => this.setState({ printView:null }),
+      lineArea, linePoints, lineDots, lineLabels, donutSegs,
+      libTabs, myLibItems,
+
+      // member plan, subscriptions, notifications
+      plan: s.plan,
+      planLabel: planMeta[s.plan].label,
+      planDesc: planMeta[s.plan].desc,
+      planBadgeStyle: { display:'inline-block', padding:'5px 14px', borderRadius:'99px', fontWeight:700, fontSize:'0.92em', background: planMeta[s.plan].badge, color: planMeta[s.plan].badgeText },
+      planCards, isPremiumPlan: s.plan === 'Premium',
+      planCurrentDesc: planMeta[s.plan].desc,
+      subCategories, subMasters, subLevels, subCount,
+      newForYou, hasNewForYou: newForYou.length > 0,
+      notifList, unreadCount, hasUnread: unreadCount > 0, hasNotifs: s.notifs.length > 0,
+      notifOpen: s.notifOpen,
+      toggleNotifs: () => this.setState({ notifOpen: !s.notifOpen }),
+      closeNotifs: () => this.setState({ notifOpen: false }),
+      markAllRead: () => this.setState({ notifs: s.notifs.map(n => ({ ...n, unread: false })) }),
+      upgradeOpen: s.upgradeOpen,
+      openUpgrade: () => this.setState({ upgradeOpen: true, lockedTitle: '' }),
+      closeUpgrade: () => this.setState({ upgradeOpen: false }),
+      lockedTitle: s.lockedTitle, lockedAccess, neededPlan,
+      hasLockedTitle: !!s.lockedTitle,
+
+      // player
+      playing: s.playing, paused: !s.playing,
+      togglePlay: () => this.setState({ playing: !s.playing }),
+      rewind: () => this.setState({ progress: Math.max(0, s.progress - 8) }),
+      showSubs: s.showSubs,
+      toggleSubs: () => this.setState({ showSubs: !s.showSubs }),
+      subsLabel: s.showSubs ? 'On' : 'Off',
+      subsBtnStyle,
+      activeCaption: s.activeCaption,
+      progressStyle,
+      currentTime: '4:06', totalTime: '12:00',
+      transcript, chapters,
+      syllabusProgress: doneCount + ' of ' + totalLessons + ' lessons complete'
+    };
+  }
+}
+</script>
+</body>
+</html>
