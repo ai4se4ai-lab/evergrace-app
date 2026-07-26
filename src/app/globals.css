@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens — carried over verbatim from the prototype (spec §3).
+   Theme is chosen by [data-theme] on <html>; high contrast overrides either
+   mode via [data-contrast="high"]. Root font-size is set by [data-text-size]
+   so every rem/em in the app scales with the accessibility panel.
+   ========================================================================== */
+
+:root {
+  --bg: #f2ece0;
+  --surface: #fbf8f2;
+  --fg: #2c2824;
+  --muted: #6b635a;
+  --line: #ddd4c6;
+  --accent: #2a6fb0;
+  --accent-dark: #1f5a92;
+  --accent-soft: #e6eef6;
+  --success: #3f7d5c;
+  --success-soft: #e2efe8;
+  --warn: #9a7420;
+  --warn-soft: #faf0da;
+  --notice-bg: #fbf3e8;
+  --notice-line: #e8d3b0;
+  --notice-fg: #7a5a2a;
+
+  /* Image placeholder hatching used wherever photography will go. */
+  --ph: repeating-linear-gradient(45deg, #e7ded0, #e7ded0 14px, #ded4c4 14px, #ded4c4 28px);
+
+  --font-display: "Baloo 2";
+  --font-body: "Public Sans";
+
+  --chart-1: #2a6fb0;
+  --chart-2: #3f7d5c;
+  --chart-3: #c07a5a;
+  --chart-4: #c99a3a;
+}
+
+[data-theme="dark"] {
+  --bg: #201d1a;
+  --surface: #2b2723;
+  --fg: #f0ebe3;
+  --muted: #a89f92;
+  --line: #3d3833;
+  --accent: #5b9bd8;
+  --accent-dark: #8fbde6;
+  --accent-soft: #2f3a45;
+  --success: #6cbf92;
+  --success-soft: #26362d;
+  --warn: #e0b46a;
+  --warn-soft: #3d3421;
+  --notice-bg: #33291c;
+  --notice-line: #5c4a2c;
+  --notice-fg: #e8c99a;
+
+  --ph: repeating-linear-gradient(45deg, #37322c, #37322c 14px, #302b26 14px, #302b26 28px);
+
+  --chart-1: #5b9bd8;
+  --chart-2: #6cbf92;
+  --chart-3: #d69a9a;
+  --chart-4: #e0b46a;
+}
+
+/* High contrast wins over both light and dark (spec §7: AAA in this mode). */
+[data-contrast="high"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --fg: #000000;
+  --muted: #333333;
+  --line: #000000;
+  --accent: #004a99;
+  --accent-dark: #003570;
+  --accent-soft: #dbe6f2;
+  --success: #0a5c34;
+  --success-soft: #d6ece0;
+  --warn: #6b4a00;
+  --warn-soft: #fff4d6;
+  --notice-bg: #fff4d6;
+  --notice-line: #000000;
+  --notice-fg: #3d2a00;
+}
+
+[data-text-size="16"] { font-size: 16px; }
+[data-text-size="20"] { font-size: 20px; }
+[data-text-size="24"] { font-size: 24px; }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body), "Public Sans", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display), "Baloo 2", var(--font-body), sans-serif;
+  font-weight: 700;
+}
+
+a {
+  color: var(--accent-dark);
+}
+
+/* A visible focus ring in --accent on every focusable thing (spec §7). */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+/* Buttons and inputs inherit the app font rather than the UA default. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   Reusable pieces of the prototype's visual language
+   ========================================================================== */
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.card {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+}
+
+.placeholder-art {
+  background: var(--ph);
+}
+
+.hatch-label {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  color: #8a7f6f;
+  background: rgba(251, 248, 242, 0.85);
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+[data-theme="dark"] .hatch-label {
+  color: #b8ac99;
+  background: rgba(32, 29, 26, 0.85);
+}
+
+/* Range input — 38px thumb, well above the 44px-target spirit of the design. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  border-radius: 99px;
+  background: var(--line);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid #fff;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Motion — every animation has a reduced-motion fallback (spec §7)
+   ========================================================================== */
+
+@keyframes pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.animate-fadeup {
+  animation: fadeup 0.22s ease;
+}
+
+.animate-pop {
+  animation: pop 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Print — the PDF/print routes render on white with a confidentiality footer
+   ========================================================================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .print-sheet {
+    padding: 0;
+  }
+}

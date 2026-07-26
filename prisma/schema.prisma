@@ -1,0 +1,294 @@
+// EverGrace data model — implements PROJECT_SPEC.md §4.
+//
+// PROVIDER NOTE
+// The spec targets PostgreSQL 15+. The MVP ships on SQLite so the whole app
+// runs with `npm run setup` and no external infrastructure. SQLite has no
+// native enum type, so every field the spec declares as an enum is stored as a
+// String whose allowed values are defined once in src/lib/domain.ts (Plan,
+// AccessLevel, VideoStatus, Track, MemberStatus, Role, FollowKind, Intensity,
+// Stance) and validated with Zod at every write boundary. The column names and
+// value strings are exactly the spec's, so switching `provider` to
+// "postgresql" and promoting these columns to real enums is a mechanical
+// migration — see docs/DEPLOYMENT.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  role                 String    @default("MEMBER") // Role
+  name                 String?
+  age                  Int?
+  plan                 String    @default("BASIC") // Plan
+  passwordHash         String? // admins only; members are passwordless
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  track                String? // Track — result of the health check-in
+  preferences          String    @default("{}") // JSON: accessibility prefs (§7)
+  createdAt            DateTime  @default(now())
+  lastActiveAt         DateTime  @default(now())
+
+  healthAnswers     HealthCheckIn?
+  progress          Progress[]
+  follows           Follow[]
+  notifications     Notification[]
+  moodCheckIns      MoodCheckIn[]
+  savedVideos       SavedVideo[]
+  lessonCompletions LessonCompletion[]
+  sessions          Session[]
+
+  @@index([lastActiveAt])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Single-use passwordless sign-in token (the "magic link").
+model MagicLinkToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  email     String
+  expires   DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+model HealthCheckIn {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mobility      String // seated | supported | free
+  surgery       String // yes | no
+  dizzy         String // often | sometimes | rarely
+  joints        String // significant | little | none
+  computedTrack String // Track
+  answeredAt    DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+model Category {
+  id      String   @id @default(cuid())
+  name    String   @unique // Balance, Breathing, Joint health, Safety
+  blurb   String   @default("")
+  videos  Video[]
+  follows Follow[]
+}
+
+model Master {
+  id      String   @id @default(cuid())
+  name    String   @unique
+  style   String?
+  videos  Video[]
+  follows Follow[]
+}
+
+model Level {
+  id          String   @id @default(cuid())
+  order       Int
+  name        String
+  description String
+  videos      Video[]
+  follows     Follow[]
+
+  @@index([order])
+}
+
+model Video {
+  id         String  @id @default(cuid())
+  title      String
+  slug       String  @unique
+  summary    String  @default("")
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  masterId   String?
+  master     Master?  @relation(fields: [masterId], references: [id])
+  levelId    String?
+  level      Level?   @relation(fields: [levelId], references: [id])
+  intensity  String // Intensity
+  stance     String // Stance
+  duration   Int // seconds
+  access     String   @default("FREE") // AccessLevel
+  status     String   @default("DRAFT") // VideoStatus
+
+  // Playback. `muxAssetId`/`muxPlaybackId` are populated when Mux is
+  // configured; `sourceUrl` is the MVP fallback used by the HTML5 player.
+  muxAssetId    String?
+  muxPlaybackId String?
+  sourceUrl     String?
+  thumbnailUrl  String?
+
+  chapters        Chapter[]
+  transcriptLines TranscriptLine[]
+  progress        Progress[]
+  savedBy         SavedVideo[]
+  notifications   Notification[]
+  createdAt       DateTime         @default(now())
+  publishedAt     DateTime?
+
+  @@index([status, createdAt])
+  @@index([categoryId])
+}
+
+model Chapter {
+  id      String   @id @default(cuid())
+  videoId String
+  video   Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  title   String
+  order   Int
+  lessons Lesson[]
+
+  @@index([videoId, order])
+}
+
+model Lesson {
+  id          String             @id @default(cuid())
+  chapterId   String
+  chapter     Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  title       String
+  duration    Int // seconds
+  order       Int
+  completions LessonCompletion[]
+
+  @@index([chapterId, order])
+}
+
+model LessonCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
+model TranscriptLine {
+  id           String @id @default(cuid())
+  videoId      String
+  video        Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  startSeconds Int
+  text         String
+
+  @@index([videoId, startSeconds])
+}
+
+// ---------------------------------------------------------------------------
+// Member activity
+// ---------------------------------------------------------------------------
+
+model Progress {
+  id             String   @id @default(cuid())
+  userId         String
+  videoId        String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video          Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  secondsWatched Int      @default(0)
+  percent        Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, videoId])
+  @@index([userId, updatedAt])
+}
+
+model SavedVideo {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  kind      String // subscribed | liked | favorite
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId, kind])
+}
+
+model Follow {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind       String // FollowKind
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  masterId   String?
+  master     Master?   @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  levelId    String?
+  level      Level?    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, kind, categoryId, masterId, levelId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  reason    String // e.g. "New from Master Ken Ryu"
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model MoodCheckIn {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int // 1-5
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Marketing content
+// ---------------------------------------------------------------------------
+
+model BlogPost {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  category     String
+  excerpt      String
+  body         String
+  thumbnailUrl String?
+  publishedAt  DateTime @default(now())
+  readMinutes  Int
+}
+
+model TeamMember {
+  id       String  @id @default(cuid())
+  name     String
+  role     String
+  bio      String
+  photoUrl String?
+  initials String  @default("")
+  order    Int
+}
