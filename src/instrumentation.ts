@@ -12,7 +12,6 @@ export async function register() {
     validateBootEnv({
       nodeEnv: process.env.NODE_ENV,
       databaseUrl: process.env.DATABASE_URL,
-      appUrl: env.appUrl,
       authSecret: env.authSecret,
       cronSecret: env.cronSecret,
     });

@@ -44,7 +44,6 @@ export const muxConfigured = Boolean(env.mux.tokenId && env.mux.tokenSecret);
 export function validateBootEnv(input: {
   nodeEnv: string | undefined;
   databaseUrl: string | undefined;
-  appUrl: string;
   authSecret: string;
   cronSecret: string | undefined;
 }): void {
@@ -53,9 +52,6 @@ export function validateBootEnv(input: {
   const problems: string[] = [];
   if (!input.databaseUrl || input.databaseUrl.trim().length === 0) {
     problems.push("DATABASE_URL must be set in production.");
-  }
-  if (!input.appUrl || input.appUrl === "http://localhost:3000") {
-    problems.push("APP_URL must be set to the deployed origin in production.");
   }
   if (input.authSecret === "evergrace-insecure-dev-secret") {
     problems.push("AUTH_SECRET must be set in production.");

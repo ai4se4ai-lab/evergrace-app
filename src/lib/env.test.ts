@@ -8,7 +8,6 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "development",
         databaseUrl: undefined,
-        appUrl: "http://localhost:3000",
         authSecret: "evergrace-insecure-dev-secret",
         cronSecret: undefined,
       }),
@@ -20,23 +19,10 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "production",
         databaseUrl: undefined,
-        appUrl: "https://app.evergrace.example",
         authSecret: "real-secret",
         cronSecret: "real-cron",
       }),
     ).toThrow(/DATABASE_URL/);
-  });
-
-  it("throws when APP_URL is still the localhost default in production", () => {
-    expect(() =>
-      validateBootEnv({
-        nodeEnv: "production",
-        databaseUrl: "postgresql://x",
-        appUrl: "http://localhost:3000",
-        authSecret: "real-secret",
-        cronSecret: "real-cron",
-      }),
-    ).toThrow(/APP_URL/);
   });
 
   it("throws when AUTH_SECRET is the insecure default in production", () => {
@@ -44,7 +30,6 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "production",
         databaseUrl: "postgresql://x",
-        appUrl: "https://app.evergrace.example",
         authSecret: "evergrace-insecure-dev-secret",
         cronSecret: "real-cron",
       }),
@@ -56,7 +41,6 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "production",
         databaseUrl: "postgresql://x",
-        appUrl: "https://app.evergrace.example",
         authSecret: "real-secret",
         cronSecret: undefined,
       }),
@@ -68,11 +52,10 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "production",
         databaseUrl: undefined,
-        appUrl: "http://localhost:3000",
         authSecret: "evergrace-insecure-dev-secret",
         cronSecret: undefined,
       }),
-    ).toThrow(/DATABASE_URL[\s\S]*APP_URL[\s\S]*AUTH_SECRET[\s\S]*CRON_SECRET/);
+    ).toThrow(/DATABASE_URL[\s\S]*AUTH_SECRET[\s\S]*CRON_SECRET/);
   });
 
   it("passes when everything required is set correctly in production", () => {
@@ -80,7 +63,6 @@ describe("validateBootEnv", () => {
       validateBootEnv({
         nodeEnv: "production",
         databaseUrl: "postgresql://x",
-        appUrl: "https://app.evergrace.example",
         authSecret: "real-secret",
         cronSecret: "real-cron",
       }),
