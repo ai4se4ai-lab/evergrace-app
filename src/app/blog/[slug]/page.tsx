@@ -15,8 +15,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const posts = await prisma.blogPost.findMany({ select: { slug: true } });
-  return posts.map((post) => ({ slug: post.slug }));
+  try {
+    const posts = await prisma.blogPost.findMany({ select: { slug: true } });
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch (error) {
+    // No DB reachable at build time (e.g. a Docker build stage, or CI without
+    // a database) — fall back to on-demand rendering for these routes
+    // instead of failing the whole build. See docs/DEPLOYMENT.md.
+    console.error("[blog generateStaticParams] DB unreachable at build time:", error);
+    return [];
+  }
 }
 
 export default async function BlogPostPage({ params }: Params) {
