@@ -1,0 +1,78 @@
+networks:
+  evergrace-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evergrace
+      POSTGRES_PASSWORD: evergrace
+      POSTGRES_DB: evergrace
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - evergrace-net
+    # No `ports:` mapping on purpose — db is reachable only from other
+    # services on evergrace-net. Add a temporary port mapping here only if
+    # you need a local DB client for debugging (see docs/DEPLOYMENT.md).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evergrace -d evergrace"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  migrate:
+    build:
+      context: .
+      target: builder
+    command: npx prisma migrate deploy
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - evergrace-net
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - evergrace-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
