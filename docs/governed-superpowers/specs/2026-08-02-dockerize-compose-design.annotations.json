@@ -1,0 +1,97 @@
+{
+  "1": {
+    "source": "existing_codebase",
+    "ref": "prisma/schema.prisma:19-21",
+    "text": "It currently runs on SQLite (`prisma/dev.db`) with schema changes applied via `prisma db push` — no versioned migrations exist yet."
+  },
+  "2": {
+    "source": "human",
+    "ref": null,
+    "text": "The task is to containerize the app and stand it up via `docker compose`, aligned to `docs/DEV/Robust-Application-Development-Guidelines.md` (the companion checklist file is present but empty, so guidance is drawn from the guidelines doc alone)."
+  },
+  "3": {
+    "source": "ai_assumption",
+    "ref": null,
+    "text": "`app` depends on `db` with a healthcheck gate so the container waits for a real, connectable database rather than just an open port."
+  },
+  "4": {
+    "source": "existing_codebase",
+    "ref": "docs/DEPLOYMENT.md:8-15",
+    "text": "Switch `prisma/schema.prisma`'s `datasource` provider from `sqlite` to `postgresql`, per the migration path already documented in `docs/DEPLOYMENT.md`."
+  },
+  "5": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:30",
+    "text": "generate the first one (`prisma migrate dev --name init`) against a throwaway local Postgres, and use `prisma migrate deploy` in the container entrypoint — never manual schema edits or `db push` in production."
+  },
+  "6": {
+    "source": "existing_codebase",
+    "ref": "prisma/schema.prisma",
+    "text": "Existing Prisma-level constraints (FKs, `@unique`, not-null) carry over unchanged."
+  },
+  "7": {
+    "source": "ai_assumption",
+    "ref": null,
+    "text": "Requires adding `output: \"standalone\"` to `next.config.ts` so the runner stage only needs the minimal traced output, not the full `node_modules` tree."
+  },
+  "8": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:51",
+    "text": "the runner stage runs as a non-root user, and its entrypoint runs `prisma migrate deploy` before starting `node server.js`."
+  },
+  "9": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:53",
+    "text": "No environment-specific values or secrets are baked into any image layer — everything is supplied at container-start time via `env_file`/compose `environment`."
+  },
+  "10": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:61",
+    "text": "`db`: `postgres:16-alpine`, named volume for data persistence, healthcheck via `pg_isready`, explicit `deploy.resources.limits` (cpu/mem)."
+  },
+  "11": {
+    "source": "ai_assumption",
+    "ref": null,
+    "text": "`app`: builds from the Dockerfile, `env_file: .env`, `DATABASE_URL` overridden to point at `db:5432` (compose's internal DNS), `depends_on: db` with `condition: service_healthy`, port `3000:3000`, explicit resource limits, and its own healthcheck against `GET /api/health`."
+  },
+  "12": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:58",
+    "text": "The app container is stateless — no state that must survive a restart is written to its local filesystem; everything durable lives in Postgres."
+  },
+  "13": {
+    "source": "ai_assumption",
+    "ref": null,
+    "text": "Seeding is a manual one-off (`docker compose run --rm app npm run db:seed`), not run automatically on every container start, so restarts don't re-seed or duplicate reference data."
+  },
+  "14": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:127",
+    "text": "This gives the `app` container's Docker healthcheck — and `depends_on: condition: service_healthy` — something real to gate on, per the guidelines' \"everything observable\" and error-tracking sections."
+  },
+  "15": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:53",
+    "text": "New `.dockerignore` excludes `.env`, `node_modules`, `.next`, `prisma/dev.db`, and other dev-only artifacts from the build context, so dev secrets can never leak into a built image layer."
+  },
+  "16": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:74",
+    "text": "Runner stage drops to a non-root user before running the app."
+  },
+  "17": {
+    "source": "skill_doc",
+    "ref": "docs/DEV/Robust-Application-Development-Guidelines.md:78",
+    "text": "No secrets appear in the Dockerfile or `docker-compose.yml` themselves — only referenced via `env_file`."
+  },
+  "18": {
+    "source": "ai_assumption",
+    "ref": null,
+    "text": "`.env.example` gains a documented Postgres `DATABASE_URL` shape for the Docker Compose setup (e.g. `postgresql://evergrace:evergrace@db:5432/evergrace`), alongside the existing SQLite default for non-Docker local dev."
+  },
+  "19": {
+    "source": "human",
+    "ref": null,
+    "text": "Rate limiting, CDN/load balancing, multi-region HA/DR, and CI/CD pipeline changes are covered elsewhere in the guidelines doc but do not apply to a single-node local `docker compose` artifact — this is not a production topology change."
+  }
+}
