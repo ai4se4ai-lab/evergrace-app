@@ -41,8 +41,40 @@ export const emailConfigured = Boolean(env.email.resendApiKey);
 export const stripeConfigured = Boolean(env.stripe.secretKey && env.stripe.priceMember);
 export const muxConfigured = Boolean(env.mux.tokenId && env.mux.tokenSecret);
 
-if (isProduction && env.authSecret === "evergrace-insecure-dev-secret") {
-  // Fail loudly rather than signing production session cookies with a
-  // well-known key.
-  throw new Error("AUTH_SECRET must be set in production.");
+export function validateBootEnv(input: {
+  nodeEnv: string | undefined;
+  databaseUrl: string | undefined;
+  appUrl: string;
+  authSecret: string;
+  cronSecret: string | undefined;
+}): void {
+  if (input.nodeEnv !== "production") return;
+
+  const problems: string[] = [];
+  if (!input.databaseUrl || input.databaseUrl.trim().length === 0) {
+    problems.push("DATABASE_URL must be set in production.");
+  }
+  if (!input.appUrl || input.appUrl === "http://localhost:3000") {
+    problems.push("APP_URL must be set to the deployed origin in production.");
+  }
+  if (input.authSecret === "evergrace-insecure-dev-secret") {
+    problems.push("AUTH_SECRET must be set in production.");
+  }
+  if (!input.cronSecret) {
+    problems.push("CRON_SECRET must be set in production.");
+  }
+
+  if (problems.length > 0) {
+    throw new Error(`Invalid production environment:\n- ${problems.join("\n- ")}`);
+  }
 }
+
+// Fail loudly at boot rather than discovering a missing/insecure production
+// value deep inside Prisma or a signed-cookie mismatch later.
+validateBootEnv({
+  nodeEnv: process.env.NODE_ENV,
+  databaseUrl: process.env.DATABASE_URL,
+  appUrl: env.appUrl,
+  authSecret: env.authSecret,
+  cronSecret: env.cronSecret,
+});
