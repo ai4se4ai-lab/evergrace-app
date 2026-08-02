@@ -69,12 +69,7 @@ export function validateBootEnv(input: {
   }
 }
 
-// Fail loudly at boot rather than discovering a missing/insecure production
-// value deep inside Prisma or a signed-cookie mismatch later.
-validateBootEnv({
-  nodeEnv: process.env.NODE_ENV,
-  databaseUrl: process.env.DATABASE_URL,
-  appUrl: env.appUrl,
-  authSecret: env.authSecret,
-  cronSecret: env.cronSecret,
-});
+// Note: this is invoked from src/instrumentation.ts's register() hook, which
+// runs once at real server boot (next start / standalone server.js) — not at
+// module import time, so it does not run during `next build`'s page-data
+// collection phase.
