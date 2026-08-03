@@ -50,6 +50,42 @@ npm run db:seed                         # reference data + demo roster
 Development so far has used `prisma db push`. Generate the first real migration
 before going to production, and use `migrate deploy` from then on.
 
+## Docker Compose (local)
+
+The repo ships a `docker-compose.yml` with three services: `db` (Postgres
+16), `migrate` (one-shot `prisma migrate deploy`, must exit 0 before `app`
+starts), and `app` (the Next.js production build). `db` publishes no host
+port — it's reachable only from `migrate`/`app` on the internal
+`evergrace-net` network. Add a port mapping to `db` temporarily if you need
+a local DB client for debugging.
+
+```bash
+docker compose build
+docker compose up -d db
+docker compose up migrate        # applies pending migrations, exits 0 on success
+docker compose up -d app
+curl http://localhost:3000/api/health
+```
+
+Seed reference data (categories, masters, demo roster) — safe to run more
+than once, `prisma/seed.ts` upserts by natural key:
+
+```bash
+docker compose run --rm migrate npx tsx prisma/seed.ts
+```
+
+`/api/health` is a **readiness** check (DB reachable), not a liveness
+check — a transient Postgres blip won't get `app` restarted by Docker over
+it. It's what the `app` service's `HEALTHCHECK` polls.
+
+Tear down: `docker compose down` (add `-v` to also delete the seeded
+Postgres volume).
+
+For non-Docker local dev (`npm run dev` outside containers), point
+`DATABASE_URL` in `.env` at your own Postgres instance, or temporarily add
+a `ports: ["5432:5432"]` mapping to the `db` service and use
+`postgresql://evergrace:evergrace@localhost:5432/evergrace`.
+
 ## Vercel
 
 1. Import the repository. Build command `npm run build` (it runs
