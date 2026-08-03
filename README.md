@@ -23,8 +23,10 @@ npm run setup             # prisma generate + db push + seed
 npm run dev               # http://localhost:3000
 ```
 
-No database server and no API keys required. The app runs against a local SQLite
-file with documented in-process fallbacks for email, billing, and video hosting.
+Requires PostgreSQL — the fastest path is `docker compose up` (see
+[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)); alternatively point `DATABASE_URL` at
+a local Postgres instance. No API keys required; documented in-process fallbacks
+for email, billing, and video hosting.
 
 ### Demo logins
 
@@ -196,10 +198,9 @@ loop, every missing page returned HTTP 200 instead of 404, deleted rows lingered
 on screen, and 18 flex lists had lost their screen-reader list semantics. The
 details are in [docs/TESTING.md](./docs/TESTING.md).
 
-All spec features are implemented. Deviations — SQLite instead of Postgres,
-custom auth instead of Auth.js, a print route instead of a PDF byte stream, and a
-few others — are each listed with a reason and a cost-to-close in
-[docs/SPEC_COMPLIANCE.md](./docs/SPEC_COMPLIANCE.md).
+All spec features are implemented. Some deviations remain — custom auth instead
+of Auth.js, a print route instead of a PDF byte stream, and a few others — each
+listed with a reason and a cost-to-close in [docs/SPEC_COMPLIANCE.md](./docs/SPEC_COMPLIANCE.md).
 
 ---
 

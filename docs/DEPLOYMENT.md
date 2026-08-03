@@ -2,8 +2,11 @@
 
 ## Moving from SQLite to PostgreSQL
 
-The MVP ships on SQLite so it runs with no infrastructure. The spec targets
-PostgreSQL 15+. The migration is mechanical.
+The MVP originally shipped on SQLite to minimize initial infrastructure
+requirements; the spec targets PostgreSQL 15+. The migration is mechanical and
+has been performed (the app now runs on Postgres via Docker Compose or a local
+instance). This section documents the approach if you need to understand how the
+migration was structured or reverse it.
 
 ### 1. Switch the provider
 
