@@ -8,6 +8,11 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: site.journal };
 
+// Reads content that only ever lives in Postgres, and the Docker build stage
+// has no DATABASE_URL (see docs/DEPLOYMENT.md) — force SSR so `next build`
+// doesn't try to prerender this page against a database that isn't there.
+export const dynamic = "force-dynamic";
+
 export default async function BlogIndexPage() {
   const posts = await prisma.blogPost.findMany({ orderBy: { publishedAt: "desc" } });
 

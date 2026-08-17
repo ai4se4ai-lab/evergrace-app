@@ -35,10 +35,10 @@ export default async function AdminSettingsPage() {
     {
       name: "Email delivery",
       live: emailConfigured,
-      liveLabel: "Resend",
+      liveLabel: "SMTP",
       fallback: "Magic links are written to the server log and shown on the sign-in page.",
       consequence: "Members cannot receive sign-in links by email until this is set.",
-      variables: ["RESEND_API_KEY", "EMAIL_FROM"],
+      variables: ["SMTP_HOST", "SMTP_PORT", "SMTP_SECURE", "SMTP_USER", "SMTP_PASS", "SMTP_FROM"],
     },
     {
       name: "Billing",

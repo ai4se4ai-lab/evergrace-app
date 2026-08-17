@@ -1,6 +1,6 @@
 # Integrations
 
-The spec names Resend, Stripe, Mux, and Sentry. Each sits behind a small adapter
+The spec names SMTP email, Stripe, Mux, and Sentry. Each sits behind a small adapter
 with a working local fallback, so the app runs end-to-end with **no** credentials
 and switches to the real service when its environment variables appear. Nothing
 pretends to have happened: local mode says so in the UI.
@@ -12,15 +12,17 @@ pretends to have happened: local mode says so in the UI.
 
 | Configured with | Behaviour |
 |---|---|
-| `RESEND_API_KEY` | `POST https://api.resend.com/emails` |
+| `SMTP_HOST` | Sends via `nodemailer.createTransport` over SMTP (`SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) |
 | *unset (default)* | The message is written to the server log, and `issueMagicLink` returns `devUrl` so the sign-in page can render the link as a button |
 
 `sendEmail` returns `{ delivered }`, and the UI copy differs accordingly: *"We've
 sent a sign-in link to …"* versus *"Local mode: no email was sent."*
 `devUrl` is `undefined` in production regardless of configuration.
 
-**To go live:** set `RESEND_API_KEY` and `EMAIL_FROM` on a verified domain. To
-use Postmark or SMTP instead, replace the one `fetch` in `sendEmail`.
+**To go live:** set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`,
+`SMTP_PASS`, and `SMTP_FROM`. Any standard SMTP provider works (Gmail with an
+app password, Postmark, SES, etc.) — `src/lib/mail.ts` talks to it through
+`nodemailer`.
 
 ## Billing — `src/lib/billing.ts`
 
@@ -120,7 +122,7 @@ writing the returned URL into those columns.
 
 | Integration | Default | Real service | Fully wired |
 |---|---|---|---|
-| Email | Console + on-page link | Resend | Yes |
+| Email | Console + on-page link | SMTP | Yes |
 | Billing | Local confirm page | Stripe Checkout + webhook | Yes |
 | Video | Source URL + local webhook | Mux upload + webhook | Upload/publish yes; Mux Player swap pending |
 | Cron | Manual `curl` | Vercel Cron | Yes |

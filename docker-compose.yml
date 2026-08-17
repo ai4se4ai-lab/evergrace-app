@@ -15,6 +15,11 @@ services:
       POSTGRES_DB: evergrace
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Postgres runs every file here, in filename order, but only once —
+      # the first time it initializes an empty pgdata volume. Adding a file
+      # here does nothing against an already-initialized volume; see
+      # database/init.sql for how to apply schema changes after that.
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - evergrace-net
     # No `ports:` mapping on purpose — db is reachable only from other
@@ -31,12 +36,15 @@ services:
           cpus: "1.0"
           memory: 512M
 
-  migrate:
+  # Not started by `docker compose up` — build/dev tooling that needs the
+  # full node_modules (tsx, prisma CLI) that the `runner`-based `app` image
+  # doesn't ship. Run ad hoc, e.g.:
+  #   docker compose run --rm tools npx tsx prisma/seed.ts
+  tools:
     build:
       context: .
       target: builder
-    command: npx prisma migrate deploy
-    restart: "no"
+    profiles: ["tools"]
     env_file:
       - .env
     environment:
@@ -61,8 +69,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
     networks:
       - evergrace-net
     healthcheck:

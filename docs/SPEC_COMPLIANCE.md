@@ -14,7 +14,7 @@ substituted or missing, it is listed.
 | PostgreSQL 15+ | ✅ | Implemented via Docker Compose (recommended) or local Postgres instance; see [DEPLOYMENT.md](./DEPLOYMENT.md). |
 | Prisma + Migrate | ✅ / ⚠️ | Prisma yes; `db push` so far, first migration to be generated before production |
 | NextAuth (Auth.js) v5 | ⚠️ **Custom auth** | See below |
-| Resend | ✅ adapter | Console fallback when unset |
+| Resend | ⚠️ **SMTP adapter** | `src/lib/mail.ts` sends over SMTP via `nodemailer` instead of the Resend API; console fallback when unset |
 | Stripe | ✅ adapter | Checkout + portal + verified webhook; mock provider when unset |
 | Mux | ⚠️ partial | Direct upload + webhook implemented; playback uses `<video>`, not Mux Player |
 | Server Actions + TanStack Query | ✅ | Query used for bell polling |

@@ -8,8 +8,8 @@ RUN npm ci
 
 # ---- builder: full node_modules (needed for the Prisma CLI + tsx) --------
 # Also used directly (via `target: builder` in docker-compose.yml) as the
-# `migrate` service's image, since `prisma migrate deploy` and
-# `npm run db:seed` both need devDependencies not present in `runner`.
+# `tools` service's image, for ad-hoc commands like `npm run db:seed` that
+# need devDependencies not present in `runner`.
 FROM node:20-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1

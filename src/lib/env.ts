@@ -18,8 +18,12 @@ export const env = {
   cronSecret: optional("CRON_SECRET"),
 
   email: {
-    from: optional("EMAIL_FROM") ?? "hello@evergrace.example",
-    resendApiKey: optional("RESEND_API_KEY"),
+    smtpHost: optional("SMTP_HOST"),
+    smtpPort: Number(optional("SMTP_PORT") ?? "587"),
+    smtpSecure: optional("SMTP_SECURE") === "true",
+    smtpUser: optional("SMTP_USER"),
+    smtpPass: optional("SMTP_PASS"),
+    from: optional("SMTP_FROM") ?? "hello@evergrace.example",
   },
   stripe: {
     secretKey: optional("STRIPE_SECRET_KEY"),
@@ -37,7 +41,7 @@ export const env = {
 
 export const isProduction = process.env.NODE_ENV === "production";
 
-export const emailConfigured = Boolean(env.email.resendApiKey);
+export const emailConfigured = Boolean(env.email.smtpHost);
 export const stripeConfigured = Boolean(env.stripe.secretKey && env.stripe.priceMember);
 export const muxConfigured = Boolean(env.mux.tokenId && env.mux.tokenSecret);
 
