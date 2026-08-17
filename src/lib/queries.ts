@@ -111,7 +111,7 @@ function toCard(video: VideoRow, viewer: Viewer | null, percent = 0): VideoCard 
 export async function getCatalog(
   filters: CatalogFilters,
   viewer: Viewer | null,
-): Promise<VideoCard[]> {
+): Promise<(VideoCard & { saved: Record<string, boolean> })[]> {
   const videos = await prisma.video.findMany({
     where: {
       status: "PUBLISHED",
@@ -127,8 +127,14 @@ export async function getCatalog(
     orderBy: [{ createdAt: "asc" }],
   });
 
-  const progress = viewer ? await progressMap(viewer.id) : new Map<string, number>();
-  return videos.map((v) => toCard(v, viewer, progress.get(v.id) ?? 0));
+  const [progress, saved] = await Promise.all([
+    viewer ? progressMap(viewer.id) : new Map<string, number>(),
+    viewer ? savedMap(viewer.id) : new Map<string, Record<string, boolean>>(),
+  ]);
+  return videos.map((v) => ({
+    ...toCard(v, viewer, progress.get(v.id) ?? 0),
+    saved: saved.get(v.id) ?? {},
+  }));
 }
 
 export async function getCatalogFacets() {
@@ -142,6 +148,17 @@ export async function getCatalogFacets() {
 async function progressMap(userId: string): Promise<Map<string, number>> {
   const rows = await prisma.progress.findMany({ where: { userId } });
   return new Map(rows.map((r) => [r.videoId, r.percent]));
+}
+
+async function savedMap(userId: string): Promise<Map<string, Record<string, boolean>>> {
+  const rows = await prisma.savedVideo.findMany({ where: { userId } });
+  const map = new Map<string, Record<string, boolean>>();
+  for (const row of rows) {
+    const entry = map.get(row.videoId) ?? {};
+    entry[row.kind] = true;
+    map.set(row.videoId, entry);
+  }
+  return map;
 }
 
 // ---------------------------------------------------------------------------
@@ -322,7 +339,7 @@ export async function getDashboardData(viewer: Viewer): Promise<DashboardData> {
   const followedMasterIds = new Set(follows.filter((f) => f.masterId).map((f) => f.masterId!));
   const followedLevelIds = new Set(follows.filter((f) => f.levelId).map((f) => f.levelId!));
 
-  // --- new for you ---------------------------------------------------------
+  // --- followed videos (feeds both "New for you" and My Library) -----------
   const candidates =
     follows.length > 0
       ? await prisma.video.findMany({
@@ -336,12 +353,11 @@ export async function getDashboardData(viewer: Viewer): Promise<DashboardData> {
           },
           include: videoInclude,
           orderBy: { createdAt: "desc" },
-          take: 8,
         })
       : [];
 
   const progressByVideo = new Map(progressRows.map((p) => [p.videoId, p.percent]));
-  const newForYou = candidates.map((video) => {
+  const newForYou = candidates.slice(0, 8).map((video) => {
     const reasons: string[] = [];
     if (followedCategoryIds.has(video.categoryId)) reasons.push(video.category.name);
     if (video.masterId && followedMasterIds.has(video.masterId)) {
@@ -356,14 +372,23 @@ export async function getDashboardData(viewer: Viewer): Promise<DashboardData> {
 
   // --- my library ----------------------------------------------------------
   const library: DashboardData["library"] = { subscribed: [], liked: [], favorite: [] };
+  const withProgressLabel = (video: (typeof savedRows)[number]["video"]) => {
+    const card = toCard(video, viewer, progressByVideo.get(video.id) ?? 0);
+    return { ...card, progressLabel: card.percent >= 100 ? "Completed" : `${card.percent}% watched` };
+  };
   for (const row of savedRows) {
-    const card = toCard(row.video, viewer, progressByVideo.get(row.videoId) ?? 0);
     const bucket = library[row.kind];
     if (!bucket) continue;
-    bucket.push({
-      ...card,
-      progressLabel: card.percent >= 100 ? "Completed" : `${card.percent}% watched`,
-    });
+    bucket.push(withProgressLabel(row.video));
+  }
+  // Subscribed also includes videos matching a followed category/master/level
+  // (spec §6.4/6.5 — "Your subscriptions" should surface into My Library, not
+  // only the "New for you" recommendations), deduped against explicit saves.
+  const subscribedIds = new Set(library.subscribed.map((v) => v.id));
+  for (const video of candidates) {
+    if (subscribedIds.has(video.id)) continue;
+    subscribedIds.add(video.id);
+    library.subscribed.push(withProgressLabel(video));
   }
 
   return {
