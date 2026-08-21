@@ -1,4 +1,4 @@
-# Domain Sign-Off Checklists — Plain-Language Edition
+# Domain Sign-Off Checklists — EverGrace_Checklists_DOMAINEXPERTS
 
 This is a plain-language companion to
 [DOMAIN_CHECKLISTS.md](./DOMAIN_CHECKLISTS.md), written for domain experts in
