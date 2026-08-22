@@ -123,7 +123,7 @@ export default async function LibraryPage({
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {videos.map((video) => (
-            <VideoCard key={video.id} video={video} />
+            <VideoCard key={video.id} video={video} saved={viewer ? video.saved : undefined} />
           ))}
         </div>
       )}

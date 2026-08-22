@@ -2,8 +2,11 @@
 
 ## Moving from SQLite to PostgreSQL
 
-The MVP ships on SQLite so it runs with no infrastructure. The spec targets
-PostgreSQL 15+. The migration is mechanical.
+The MVP originally shipped on SQLite to minimize initial infrastructure
+requirements; the spec targets PostgreSQL 15+. The migration is mechanical and
+has been performed (the app now runs on Postgres via Docker Compose or a local
+instance). This section documents the approach if you need to understand how the
+migration was structured or reverse it.
 
 ### 1. Switch the provider
 
@@ -50,6 +53,51 @@ npm run db:seed                         # reference data + demo roster
 Development so far has used `prisma db push`. Generate the first real migration
 before going to production, and use `migrate deploy` from then on.
 
+## Docker Compose (local)
+
+The repo ships a `docker-compose.yml` with `db` (Postgres 16) and `app` (the
+Next.js production build). Schema is applied by Postgres itself: `db` mounts
+`database/init.sql` into `/docker-entrypoint-initdb.d/`, which Postgres runs
+automatically the first time it initializes an empty data volume — there is
+no separate migration step or service to wait on. `db` publishes no host
+port — it's reachable only from `app`/`tools` on the internal
+`evergrace-net` network. Add a port mapping to `db` temporarily if you need
+a local DB client for debugging.
+
+```bash
+docker compose build
+docker compose up -d db app
+curl http://localhost:3000/api/health
+```
+
+`/docker-entrypoint-initdb.d` scripts only run against a brand-new volume —
+if `pgdata` already exists, adding or changing files there does nothing. To
+apply a schema change to an existing database, run it by hand (`psql` or
+`prisma migrate deploy` from the `tools` service below) or, for local/dev
+environments, `docker compose down -v` to recreate the volume from scratch.
+
+`tools` is a one-off service (not started by `docker compose up`, via
+`profiles: ["tools"]`) built from the same image as `app` but with full
+devDependencies, for commands the slim `runner` image can't run. Seed
+reference data (categories, masters, demo roster) — safe to run more than
+once, `prisma/seed.ts` upserts by natural key:
+
+```bash
+docker compose run --rm tools npx tsx prisma/seed.ts
+```
+
+`/api/health` is a **readiness** check (DB reachable), not a liveness
+check — a transient Postgres blip won't get `app` restarted by Docker over
+it. It's what the `app` service's `HEALTHCHECK` polls.
+
+Tear down: `docker compose down` (add `-v` to also delete the seeded
+Postgres volume).
+
+For non-Docker local dev (`npm run dev` outside containers), point
+`DATABASE_URL` in `.env` at your own Postgres instance, or temporarily add
+a `ports: ["5432:5432"]` mapping to the `db` service and use
+`postgresql://evergrace:evergrace@localhost:5432/evergrace`.
+
 ## Vercel
 
 1. Import the repository. Build command `npm run build` (it runs
@@ -73,14 +121,16 @@ Required:
 Optional — each unset value falls back to the documented local behaviour
 ([INTEGRATIONS.md](./INTEGRATIONS.md)):
 
-`EMAIL_FROM`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
-`STRIPE_PRICE_MEMBER`, `STRIPE_PRICE_PREMIUM`, `MUX_TOKEN_ID`,
-`MUX_TOKEN_SECRET`, `MUX_WEBHOOK_SECRET`, `SENTRY_DSN`.
+`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`,
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MEMBER`,
+`STRIPE_PRICE_PREMIUM`, `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`,
+`MUX_WEBHOOK_SECRET`, `SENTRY_DSN`.
 
 Seed-only: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`.
 
-> Set `RESEND_API_KEY` before real members sign up. Without it, magic links are
-> only written to the server log — nobody can sign in.
+> Set `SMTP_HOST` (and the rest of the `SMTP_*` variables) before real members
+> sign up. Without it, magic links are only written to the server log —
+> nobody can sign in.
 
 ### Cron
 
@@ -106,7 +156,7 @@ query parameter and read it in the handler, or accept Vercel's own
       account invited
 - [ ] `DATABASE_URL` on managed Postgres, with backups on
 - [ ] First Prisma migration generated and applied with `migrate deploy`
-- [ ] `RESEND_API_KEY` set and the sending domain verified
+- [ ] `SMTP_*` variables set and a test email delivered
 - [ ] Stripe keys + webhook registered; prices match $9 / $19
 - [ ] Mux keys + webhook registered; **signed playback policy** in use
 - [ ] `SENTRY_DSN` set and `error.tsx` reporting to it

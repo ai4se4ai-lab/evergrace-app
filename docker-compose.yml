@@ -1,0 +1,84 @@
+networks:
+  evergrace-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evergrace
+      POSTGRES_PASSWORD: evergrace
+      POSTGRES_DB: evergrace
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Postgres runs every file here, in filename order, but only once —
+      # the first time it initializes an empty pgdata volume. Adding a file
+      # here does nothing against an already-initialized volume; see
+      # database/init.sql for how to apply schema changes after that.
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - evergrace-net
+    # No `ports:` mapping on purpose — db is reachable only from other
+    # services on evergrace-net. Add a temporary port mapping here only if
+    # you need a local DB client for debugging (see docs/DEPLOYMENT.md).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evergrace -d evergrace"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  # Not started by `docker compose up` — build/dev tooling that needs the
+  # full node_modules (tsx, prisma CLI) that the `runner`-based `app` image
+  # doesn't ship. Run ad hoc, e.g.:
+  #   docker compose run --rm tools npx tsx prisma/seed.ts
+  tools:
+    build:
+      context: .
+      target: builder
+    profiles: ["tools"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - evergrace-net
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - evergrace-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M

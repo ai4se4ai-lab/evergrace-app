@@ -16,6 +16,31 @@ rules are preserved rather than reinterpreted.
 
 ## Getting started
 
+The whole app — Postgres, migrations, and the Next.js server — runs from one
+`docker-compose.yml`. No local Node or Postgres install required.
+
+```bash
+cp .env.example .env             # Windows: copy .env.example .env
+docker compose build
+docker compose up -d db app      # Postgres applies schema on first boot, then the server starts
+docker compose run --rm tools npx tsx prisma/seed.ts   # reference data + demo roster
+```
+
+Then open **http://localhost:3000** (`curl http://localhost:3000/api/health`
+to confirm readiness). Tear down with `docker compose down` (add `-v` to also
+delete the seeded Postgres volume).
+
+The `docker-compose.yml` defines `db` (Postgres 16, no host port published —
+reachable only from other containers; schema comes from `database/init.sql`,
+applied automatically the first time its volume initializes) and `app` (the
+production build, published on `3000`). `tools` is a third, not started by
+`up`, for one-off commands like seeding that need devDependencies `app`
+doesn't ship. No API keys required; documented in-process fallbacks for
+email, billing, and video hosting. Full details, including running without
+Docker: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+
+### Without Docker
+
 ```bash
 npm install
 cp .env.example .env      # Windows: copy .env.example .env
@@ -23,8 +48,9 @@ npm run setup             # prisma generate + db push + seed
 npm run dev               # http://localhost:3000
 ```
 
-No database server and no API keys required. The app runs against a local SQLite
-file with documented in-process fallbacks for email, billing, and video hosting.
+Requires your own Postgres instance — point `DATABASE_URL` at it, or
+temporarily publish the `db` service's port from Docker Compose (see
+[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)).
 
 ### Demo logins
 
@@ -196,10 +222,9 @@ loop, every missing page returned HTTP 200 instead of 404, deleted rows lingered
 on screen, and 18 flex lists had lost their screen-reader list semantics. The
 details are in [docs/TESTING.md](./docs/TESTING.md).
 
-All spec features are implemented. Deviations — SQLite instead of Postgres,
-custom auth instead of Auth.js, a print route instead of a PDF byte stream, and a
-few others — are each listed with a reason and a cost-to-close in
-[docs/SPEC_COMPLIANCE.md](./docs/SPEC_COMPLIANCE.md).
+All spec features are implemented. Some deviations remain — custom auth instead
+of Auth.js, a print route instead of a PDF byte stream, and a few others — each
+listed with a reason and a cost-to-close in [docs/SPEC_COMPLIANCE.md](./docs/SPEC_COMPLIANCE.md).
 
 ---
 

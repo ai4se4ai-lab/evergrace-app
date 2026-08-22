@@ -11,10 +11,10 @@ substituted or missing, it is listed.
 | Next.js 14+ App Router, TypeScript | ✅ Next 15, TS strict | Server Components default |
 | Tailwind + CSS variables | ✅ | Tokens wired through `tailwind.config.ts` |
 | shadcn/ui (Radix) | ⚠️ **Radix directly** | Same primitives and accessibility guarantees, hand-styled to the prototype. shadcn is a code generator over Radix; adding its CLI would have meant restyling generated components back to the prototype's look. |
-| PostgreSQL 15+ | ⚠️ **SQLite** | So the MVP runs with `npm run setup` and no infrastructure. Mechanical migration in [DEPLOYMENT.md](./DEPLOYMENT.md). |
+| PostgreSQL 15+ | ✅ | Implemented via Docker Compose (recommended) or local Postgres instance; see [DEPLOYMENT.md](./DEPLOYMENT.md). |
 | Prisma + Migrate | ✅ / ⚠️ | Prisma yes; `db push` so far, first migration to be generated before production |
 | NextAuth (Auth.js) v5 | ⚠️ **Custom auth** | See below |
-| Resend | ✅ adapter | Console fallback when unset |
+| Resend | ⚠️ **SMTP adapter** | `src/lib/mail.ts` sends over SMTP via `nodemailer` instead of the Resend API; console fallback when unset |
 | Stripe | ✅ adapter | Checkout + portal + verified webhook; mock provider when unset |
 | Mux | ⚠️ partial | Direct upload + webhook implemented; playback uses `<video>`, not Mux Player |
 | Server Actions + TanStack Query | ✅ | Query used for bell polling |
@@ -57,7 +57,7 @@ documented radius scale; reduced-motion fallbacks. See
 ## §4 Data model
 
 ✅ Every model present with the spec's fields and relations. Departures: string
-columns instead of enums (SQLite), and additive fields — `passwordHash`,
+columns instead of native Postgres enums (can be promoted; see [DEPLOYMENT.md](./DEPLOYMENT.md)), and additive fields — `passwordHash`,
 `preferences`, `Video.slug`/`summary`/`sourceUrl`/`publishedAt`,
 `Category.blurb`, `TeamMember.initials`, plus `Session` and `MagicLinkToken`
 (implied by `User.sessions` and the magic-link flow). Full table in
@@ -159,8 +159,8 @@ user-to-user messaging.
 
 | Deviation | Reason | Effort to close |
 |---|---|---|
-| SQLite instead of Postgres | Zero-infrastructure MVP | Low — documented |
-| String columns instead of enums | SQLite limitation | Low — part of the above |
+| PostgreSQL required | Already implemented | N/A — spec requirement met |
+| String columns instead of enums | Optional; can promote to native Postgres enums | Low — see [DEPLOYMENT.md](./DEPLOYMENT.md) |
 | Custom auth instead of Auth.js v5 | Auth.js Email provider needs credentials to work at all | Medium |
 | Radix directly instead of shadcn/ui | Same primitives; avoids restyling generated code | Low, cosmetic |
 | `useActionState` instead of React Hook Form | Simpler for forms this size; Zod still shared | Low |

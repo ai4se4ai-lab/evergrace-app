@@ -106,11 +106,11 @@ in `order` so the LVL badges stay contiguous.
 
 ## Two documented departures from spec §4
 
-1. **SQLite instead of PostgreSQL**, so the app runs with no infrastructure.
-   SQLite has no enum type, so every field the spec declares as an enum is a
-   `String` whose permitted values are defined once in `src/lib/domain.ts` and
-   validated with Zod at every write. Column names and value strings are exactly
-   the spec's. See [DEPLOYMENT.md](./DEPLOYMENT.md) for the Postgres migration.
+1. **String columns for spec enums** — rather than using Postgres native enum types,
+   every field the spec declares as an enum is stored as a `String` whose permitted
+   values are defined once in `src/lib/domain.ts` and validated with Zod at every
+   write. Column names and value strings are exactly the spec's. This is optional;
+   see [DEPLOYMENT.md](./DEPLOYMENT.md) to promote these to native Postgres enums.
 2. **Added fields**, all additive: `User.passwordHash` and `User.preferences`,
    `Video.slug` / `summary` / `sourceUrl` / `publishedAt`, `Category.blurb`,
    `TeamMember.initials`, plus the `Session` and `MagicLinkToken` models the

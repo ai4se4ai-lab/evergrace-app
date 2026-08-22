@@ -18,8 +18,12 @@ export const env = {
   cronSecret: optional("CRON_SECRET"),
 
   email: {
-    from: optional("EMAIL_FROM") ?? "hello@evergrace.example",
-    resendApiKey: optional("RESEND_API_KEY"),
+    smtpHost: optional("SMTP_HOST"),
+    smtpPort: Number(optional("SMTP_PORT") ?? "587"),
+    smtpSecure: optional("SMTP_SECURE") === "true",
+    smtpUser: optional("SMTP_USER"),
+    smtpPass: optional("SMTP_PASS"),
+    from: optional("SMTP_FROM") ?? "hello@evergrace.example",
   },
   stripe: {
     secretKey: optional("STRIPE_SECRET_KEY"),
@@ -37,12 +41,35 @@ export const env = {
 
 export const isProduction = process.env.NODE_ENV === "production";
 
-export const emailConfigured = Boolean(env.email.resendApiKey);
+export const emailConfigured = Boolean(env.email.smtpHost);
 export const stripeConfigured = Boolean(env.stripe.secretKey && env.stripe.priceMember);
 export const muxConfigured = Boolean(env.mux.tokenId && env.mux.tokenSecret);
 
-if (isProduction && env.authSecret === "evergrace-insecure-dev-secret") {
-  // Fail loudly rather than signing production session cookies with a
-  // well-known key.
-  throw new Error("AUTH_SECRET must be set in production.");
+export function validateBootEnv(input: {
+  nodeEnv: string | undefined;
+  databaseUrl: string | undefined;
+  authSecret: string;
+  cronSecret: string | undefined;
+}): void {
+  if (input.nodeEnv !== "production") return;
+
+  const problems: string[] = [];
+  if (!input.databaseUrl || input.databaseUrl.trim().length === 0) {
+    problems.push("DATABASE_URL must be set in production.");
+  }
+  if (input.authSecret === "evergrace-insecure-dev-secret") {
+    problems.push("AUTH_SECRET must be set in production.");
+  }
+  if (!input.cronSecret) {
+    problems.push("CRON_SECRET must be set in production.");
+  }
+
+  if (problems.length > 0) {
+    throw new Error(`Invalid production environment:\n- ${problems.join("\n- ")}`);
+  }
 }
+
+// Note: this is invoked from src/instrumentation.ts's register() hook, which
+// runs once at real server boot (next start / standalone server.js) — not at
+// module import time, so it does not run during `next build`'s page-data
+// collection phase.

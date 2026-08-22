@@ -5,9 +5,10 @@
 - Node.js 20 or newer (developed on 22)
 - npm (the repo ships a `package-lock.json`; pnpm also works)
 
-No database server, no API keys, no Docker. The MVP runs against a local SQLite
-file and in-process fallbacks for email, billing, and video hosting — see
-[INTEGRATIONS.md](./INTEGRATIONS.md).
+Requires PostgreSQL: fastest path is `docker compose up`, or point `DATABASE_URL`
+at a local Postgres instance (see [DEPLOYMENT.md](./DEPLOYMENT.md) for both
+options). No API keys required; documented in-process fallbacks for email,
+billing, and video hosting — see [INTEGRATIONS.md](./INTEGRATIONS.md).
 
 ## Install and run
 

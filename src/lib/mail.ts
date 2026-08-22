@@ -1,3 +1,5 @@
+import nodemailer from "nodemailer";
+
 import { emailConfigured, env } from "./env";
 
 export type OutboundEmail = {
@@ -7,10 +9,26 @@ export type OutboundEmail = {
   html?: string;
 };
 
+let transporter: ReturnType<typeof nodemailer.createTransport> | undefined;
+
+function getTransporter() {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: env.email.smtpHost,
+      port: env.email.smtpPort,
+      secure: env.email.smtpSecure,
+      auth: env.email.smtpUser
+        ? { user: env.email.smtpUser, pass: env.email.smtpPass }
+        : undefined,
+    });
+  }
+  return transporter;
+}
+
 /**
- * Sends transactional mail through Resend when RESEND_API_KEY is present.
- * Otherwise the message is logged — which is what makes the local magic-link
- * flow usable without an SMTP account.
+ * Sends transactional mail through SMTP when SMTP_HOST is present. Otherwise
+ * the message is logged — which is what makes the local magic-link flow
+ * usable without an SMTP account.
  */
 export async function sendEmail(message: OutboundEmail): Promise<{ delivered: boolean }> {
   if (!emailConfigured) {
@@ -29,24 +47,14 @@ export async function sendEmail(message: OutboundEmail): Promise<{ delivered: bo
     return { delivered: false };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.email.resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: env.email.from,
-      to: [message.to],
-      subject: message.subject,
-      text: message.text,
-      html: message.html,
-    }),
+  await getTransporter().sendMail({
+    from: env.email.from,
+    to: message.to,
+    subject: message.subject,
+    text: message.text,
+    html: message.html,
   });
 
-  if (!response.ok) {
-    throw new Error(`Email delivery failed (${response.status}): ${await response.text()}`);
-  }
   return { delivered: true };
 }
 

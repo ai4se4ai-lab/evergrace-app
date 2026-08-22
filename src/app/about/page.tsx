@@ -7,6 +7,11 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "About us" };
 
+// Reads content that only ever lives in Postgres, and the Docker build stage
+// has no DATABASE_URL (see docs/DEPLOYMENT.md) — force SSR so `next build`
+// doesn't try to prerender this page against a database that isn't there.
+export const dynamic = "force-dynamic";
+
 const PILLAR_WORD = ["Safe", "Clear", "Kind"];
 
 export default async function AboutPage() {

@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
+import { toggleSavedVideo } from "@/actions/member";
 import { LockIcon, PlayIcon } from "@/components/icons";
 import { usePlanModal } from "@/components/plan-modal";
 import { AccessBadge } from "@/components/ui/badge";
-import { INTENSITY_LABEL, STANCE_LABEL } from "@/lib/domain";
+import { INTENSITY_LABEL, SAVED_KINDS, STANCE_LABEL, type SavedKind } from "@/lib/domain";
 import type { VideoCard as VideoCardData } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,17 @@ type Props = {
   progressLabel?: string;
   savedTag?: { icon: string; label: string };
   variant?: "catalog" | "compact";
+  /** Viewer's current SavedVideo state for this video, if signed in. Enables the like/favorite quick actions on the card. */
+  saved?: Record<string, boolean>;
+};
+
+/** Only Like/Favorite are quick-toggled from the card; "Subscribed" stays on the video detail page to avoid colliding with the "Your subscriptions" follow feature. */
+const QUICK_SAVE_KINDS: SavedKind[] = SAVED_KINDS.filter((kind) => kind !== "subscribed");
+
+const QUICK_SAVE_META: Record<SavedKind, { icon: string; activeIcon: string; label: string }> = {
+  subscribed: { icon: "+", activeIcon: "✓", label: "Subscribe" },
+  liked: { icon: "♡", activeIcon: "♥", label: "Like" },
+  favorite: { icon: "☆", activeIcon: "★", label: "Favorite" },
 };
 
 /**
@@ -31,6 +44,7 @@ export function VideoCard({
   progressLabel,
   savedTag,
   variant = "catalog",
+  saved,
 }: Props) {
   const router = useRouter();
   const planModal = usePlanModal();
@@ -47,10 +61,19 @@ export function VideoCard({
     router.push(`/library/${video.slug}`);
   }
 
+  function onKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      activate();
+    }
+  }
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={activate}
+      onKeyDown={onKeyDown}
       className="flex flex-col overflow-hidden rounded-[18px] border-2 border-line bg-surface text-left transition-transform hover:-translate-y-[3px] hover:border-accent"
     >
       <div
@@ -124,7 +147,58 @@ export function VideoCard({
         {video.locked ? (
           <span className="font-bold text-[0.95em] text-warn">🔒 Upgrade to watch</span>
         ) : null}
+
+        {saved ? (
+          <div className="mt-1 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            {QUICK_SAVE_KINDS.map((kind) => (
+              <QuickSaveButton key={kind} videoId={video.id} kind={kind} initialActive={Boolean(saved[kind])} />
+            ))}
+          </div>
+        ) : null}
       </div>
+    </div>
+  );
+}
+
+function QuickSaveButton({
+  videoId,
+  kind,
+  initialActive,
+}: {
+  videoId: string;
+  kind: SavedKind;
+  initialActive: boolean;
+}) {
+  const router = useRouter();
+  const [active, setActive] = useState(initialActive);
+  const [, startTransition] = useTransition();
+  const meta = QUICK_SAVE_META[kind];
+
+  function toggle() {
+    const next = !active;
+    setActive(next);
+    startTransition(async () => {
+      const result = await toggleSavedVideo({ videoId, kind });
+      if (!result.ok) {
+        setActive(!next);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={active}
+      aria-label={`${active ? "Remove from" : "Add to"} ${meta.label}`}
+      className={cn(
+        "inline-flex min-h-touch items-center gap-1.5 rounded-full border-2 px-3.5 py-2 text-[0.92em] font-bold",
+        active ? "border-accent bg-accent text-white" : "border-line text-fg hover:bg-accent-soft",
+      )}
+    >
+      <span aria-hidden>{active ? meta.activeIcon : meta.icon}</span> {meta.label}
     </button>
   );
 }

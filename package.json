@@ -21,6 +21,12 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.25",
+      "sharp": "^0.35.3"
+    }
+  },
   "dependencies": {
     "@prisma/client": "^6.3.0",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -33,6 +39,7 @@
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "next": "^15.1.6",
+    "nodemailer": "^9.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.1",
@@ -43,6 +50,7 @@
     "@playwright/test": "^1.50.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.10",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
