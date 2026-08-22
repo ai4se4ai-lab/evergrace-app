@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "governed-superpowers": {
+      "type": "http",
+      "url": "https://comp370.soc.ufv.ca/mcp",
+      "headers": {
+        "Authorization": "Bearer gsp_7f2pwuf2ufqc_DAk4Tl8pRJ9wBOcC0xqkD4YBIKjpodONOa1XgoK52eE"
+      }
+    }
+  }
+}
