@@ -64,7 +64,7 @@ export function TaxonomyManager({
           detailLabel: "Style",
           detailHint: "Shown beside their name in the subscriptions card.",
           detailPlaceholder: "Tai Chi & Balance",
-          namePlaceholder: "e.g. Ken Ryu",
+          namePlaceholder: "e.g. Kenneth Brake",
         };
 
   return (

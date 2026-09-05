@@ -126,7 +126,7 @@ and a sticky **syllabus accordion** with per-lesson completion tracking.
 
 ### Notifications
 Header bell with an unread badge, polling for new items. Each notification names
-its reason — *"New from Master Ken Ryu"*, *"New in Balance"* — and its access
+its reason — *"New from Master Kenneth Brake"*, *"New in Balance"* — and its access
 tier, showing **🔒 Upgrade to watch** when your plan doesn't cover it.
 Notifications are generated automatically when staff publish a video in something
 you follow.

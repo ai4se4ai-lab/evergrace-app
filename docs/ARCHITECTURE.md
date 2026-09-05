@@ -127,7 +127,7 @@ enters `PUBLISHED`, from either the admin action or an asset-ready webhook. It:
 1. Loads every `Follow` matching the video's category, master, or level.
 2. Collapses them to one notification per member, preferring the most specific
    reason (master > level > category), using the prototype's exact copy:
-   `"New from Master Ken Ryu"`, `"New in Level 0 — Foundations"`, `"New in Balance"`.
+   `"New from Master Kenneth Brake"`, `"New in Level 0 — Foundations"`, `"New in Balance"`.
 3. Skips members who already have a notification for that video, so a
    draft → published → draft → published cycle does not duplicate.
 

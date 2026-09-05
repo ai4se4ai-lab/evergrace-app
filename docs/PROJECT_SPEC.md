@@ -47,7 +47,7 @@ These terms recur throughout the spec and must be named identically in code
 - **canView(video, member)** — `planRank(member.plan) >= accessRank(video.access)`.
 - **Track** — the health-check-in outcome: `SEATED`, `SUPPORTED`, `ACTIVE`.
 - **Category** — a focus area: Balance, Breathing, Joint health, Safety (+ "Seated fundamentals" as a filter, not a stored category).
-- **Master** — an instructor (Ken Ryu, Aiko Tanaka, Mei Lin, ...).
+- **Master** — an instructor (Kenneth Brake, Aiko Tanaka, Mei Lin, ...).
 - **Level** — an ordered skill-progression grouping of videos (Level 0, 1, 2, ...), distinct from Category.
 - **Subscription (follow)** — a member "follows" a Category, a Master, or a Level; this drives Notifications and "New for you".
 - **Status** (video) — `DRAFT`, `PROCESSING`, `PUBLISHED`.
@@ -265,7 +265,7 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
   videoId   String
   video     Video    @relation(fields: [videoId], references: [id])
-  reason    String   // e.g. "New from Master Ken Ryu"
+  reason    String   // e.g. "New from Master Kenneth Brake"
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }

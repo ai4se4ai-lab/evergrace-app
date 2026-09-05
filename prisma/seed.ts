@@ -35,7 +35,7 @@ const categories = [
 ];
 
 const masters = [
-  { name: "Ken Ryu", style: "Tai Chi & Balance" },
+  { name: "Kenneth Brake", style: "Tai Chi & Balance" },
   { name: "Aiko Tanaka", style: "Safe Falls & Support" },
   { name: "Mei Lin", style: "Breathing & Mobility" },
 ];
@@ -79,7 +79,7 @@ const videos: SeedVideo[] = [
     summary:
       "Twelve calm minutes in your chair: sit tall, breathe slowly, and find your centre before you ever stand up.",
     category: "Balance",
-    master: "Ken Ryu",
+    master: "Kenneth Brake",
     level: 0,
     intensity: "GENTLE",
     stance: "SEATED",
@@ -131,7 +131,7 @@ const videos: SeedVideo[] = [
     summary:
       "Free-standing weight transfers drawn from Tai Chi, broken into steps you can practise one at a time.",
     category: "Balance",
-    master: "Ken Ryu",
+    master: "Kenneth Brake",
     level: 2,
     intensity: "MODERATE",
     stance: "FREE_STANDING",
@@ -211,7 +211,7 @@ const team = [
   },
   {
     initials: "KR",
-    name: "Ken Ryu",
+    name: "Kenneth Brake",
     role: "Head Martial Arts Instructor",
     bio: "Adapts traditional Jujutsu, Tai Chi, and Qigong into safe, gentle movements anyone can follow.",
   },
@@ -271,7 +271,7 @@ Do these every morning for two weeks before you add anything standing.`,
     daysAgo: 31,
     title: "How to fall safely — and get back up with confidence",
     excerpt:
-      "Ken Ryu breaks down the single most useful skill for preventing serious injury.",
+      "Kenneth Brake breaks down the single most useful skill for preventing serious injury.",
     body: `In forty years of teaching I have never met a student who planned to fall. I have met a great many who were glad they had practised it.
 
 **Protect the head first.** Everything else is negotiable. Tuck your chin toward your chest — this single reflex is what martial artists drill for years, and it is the difference between a bruise and a concussion.
@@ -545,7 +545,7 @@ async function main() {
 
   if (margaret) {
     const balanceId = categoryByName.get("Balance")!;
-    const kenId = masterByName.get("Ken Ryu")!;
+    const kenId = masterByName.get("Kenneth Brake")!;
     const level0 = levelByOrder.get(0)!;
 
     await prisma.follow.deleteMany({ where: { userId: margaret.id } });
@@ -575,7 +575,7 @@ async function main() {
         {
           userId: margaret.id,
           videoId: videoBySlug.get(slugify("Tai Chi Weight Shifts"))!,
-          reason: "New from Master Ken Ryu",
+          reason: "New from Master Kenneth Brake",
           createdAt: new Date(Date.now() - 2 * 3600_000),
         },
         {

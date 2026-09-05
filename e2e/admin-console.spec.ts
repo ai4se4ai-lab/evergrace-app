@@ -308,7 +308,7 @@ test.describe("signed in as staff", () => {
   test("an instructor can be created and deleted", async ({ page }) => {
     await page.goto("/admin/content/masters");
 
-    await expect(row(page, "Ken Ryu")).toContainText("Tai Chi & Balance");
+    await expect(row(page, "Kenneth Brake")).toContainText("Tai Chi & Balance");
 
     const name = `Instructor ${RUN}`;
     await page.getByRole("button", { name: "New instructor" }).click();
@@ -329,7 +329,7 @@ test.describe("signed in as staff", () => {
   test("an instructor credited on videos cannot be deleted", async ({ page }) => {
     await page.goto("/admin/content/masters");
 
-    await row(page, "Ken Ryu").getByRole("button", { name: "Delete" }).click();
+    await row(page, "Kenneth Brake").getByRole("button", { name: "Delete" }).click();
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("button", { name: "Delete", exact: true }).click();
 

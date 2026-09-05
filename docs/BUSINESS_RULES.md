@@ -115,7 +115,7 @@ Built with the prototype's exact strings:
 | Follow | Reason |
 |---|---|
 | Category | `New in Balance` |
-| Master | `New from Master Ken Ryu` |
+| Master | `New from Master Kenneth Brake` |
 | Level | `New in Level 0 — Foundations` |
 
 A member who follows several matching axes receives **one** notification, with

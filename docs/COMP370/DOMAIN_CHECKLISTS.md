@@ -218,7 +218,7 @@ managed through the admin console ([ADMIN_GUIDE.md](./ADMIN_GUIDE.md)).
 | # | Checklist item | M/O | Done | Comments |
 |---|---|---|---|---|
 | 1 | Supply the authoritative instructor ("Master") roster: names, styles, bios | Mandatory | ☐ | |
-| 2 | Approve or replace the seeded instructor names (Ken Ryu, Aiko Tanaka, Mei Lin) | Mandatory | ☐ | |
+| 2 | Approve or replace the seeded instructor names (Kenneth Brake, Aiko Tanaka, Mei Lin) | Mandatory | ☐ | |
 | 3 | Approve or revise the Focus Area taxonomy (currently Balance, Breathing, Joint health, Safety) | Mandatory | ☐ | |
 | 4 | Define the Skill Level ladder (Level 0, 1, 2, …) names, descriptions, and progression criteria | Mandatory | ☐ | |
 | 5 | Supply the real technique/video library to replace all seeded placeholder videos | Mandatory | ☐ | |

@@ -247,7 +247,7 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   videoId   String
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  reason    String // e.g. "New from Master Ken Ryu"
+  reason    String // e.g. "New from Master Kenneth Brake"
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
