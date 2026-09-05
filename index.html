@@ -694,10 +694,14 @@
           </div>
         </section>
 
-        <section style="max-width:1100px; margin:0 auto; padding:40px 28px 20px;">
-          <h2 style="font-size:2.1em; margin:0 0 6px; text-align:center;">The Team</h2>
-          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 0 34px; text-align:center;">The COMP 370 students who built this platform.</p>
-          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+        <section style="max-width:1100px; margin:0 auto; padding:40px 28px 90px;">
+          <h2 style="font-size:2.1em; margin:0 0 6px; text-align:center;">The people behind the practice</h2>
+          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 0 50px; text-align:center;">A team of instructors, nurses, designers, and researchers.</p>
+
+          <!-- Development team -->
+          <h3 style="font-size:1.5em; margin:0 0 6px; text-align:center;">Development Team</h3>
+          <p style="font-size:1.08em; color:var(--muted,#6b635a); margin:0 0 28px; text-align:center;">The COMP 370 students who built this platform.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:64px;">
             <sc-for list="{{ students }}" as="st" hint-placeholder-count="3">
               <div style="background:var(--surface,#fbf8f2); border:2px solid var(--line,#ddd4c6); border-radius:18px; overflow:hidden; display:flex; flex-direction:column;">
                 <div style="aspect-ratio:4/5; background:{{ st.bg }}; position:relative;">
@@ -711,26 +715,37 @@
               </div>
             </sc-for>
           </div>
-        </section>
 
-        <section style="max-width:1100px; margin:0 auto; padding:40px 28px 90px;">
-          <h2 style="font-size:2.1em; margin:0 0 6px; text-align:center;">The people behind the practice</h2>
-          <p style="font-size:1.2em; color:var(--muted,#6b635a); margin:0 0 34px; text-align:center;">A team of instructors, nurses, designers, and researchers.</p>
-          <div style="display:flex; gap:12px; height:460px;">
-            <sc-for list="{{ team }}" as="m" hint-placeholder-count="7">
-              <div onMouseEnter="{{ m.onEnter }}" onMouseLeave="{{ m.onLeave }}" style="{{ m.cardStyle }}">
-                <div style="position:absolute; inset:0; background:{{ m.bg }};">
-                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ m.slotId }}" shape="rect" placeholder="Photo" hint-size="100%,100%"></x-import>
-                </div>
-                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(20,17,14,.82) 0%, rgba(20,17,14,.35) 42%, rgba(20,17,14,0) 68%); pointer-events:none;"></div>
-                <div style="position:absolute; left:0; right:0; bottom:0; padding:22px 24px; pointer-events:none;">
-                  <h3 style="{{ m.nameStyle }}">{{ m.name }}</h3>
-                  <div style="{{ m.detailStyle }}">
-                    <div style="color:#ffd9a3; font-weight:700; margin:6px 0 10px; font-size:1.05em;">{{ m.role }}</div>
-                    <p style="margin:0; color:rgba(255,255,255,.9); font-size:1.05em; line-height:1.45;">{{ m.bio }}</p>
+          <!-- Stakeholders & leadership -->
+          <h3 style="font-size:1.5em; margin:0 0 6px; text-align:center;">Stakeholders &amp; Leadership Team</h3>
+          <p style="font-size:1.08em; color:var(--muted,#6b635a); margin:0 0 28px; text-align:center;">The instructors, clinicians, and faculty guiding the program.</p>
+
+          <div onMouseEnter="{{ pauseTeamCarousel }}" onMouseLeave="{{ resumeTeamCarousel }}" style="position:relative; border:2px solid var(--line,#ddd4c6); border-radius:20px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.08);">
+            <div style="position:relative; height:420px;">
+              <sc-for list="{{ team }}" as="m" hint-placeholder-count="7">
+                <div style="{{ m.slideStyle }}">
+                  <div style="position:absolute; inset:0; background:{{ m.bg }};">
+                    <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ m.slotId }}" shape="rect" placeholder="Photo" hint-size="100%,100%"></x-import>
+                  </div>
+                  <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(20,17,14,.85) 0%, rgba(20,17,14,.4) 42%, rgba(20,17,14,0) 70%); pointer-events:none;"></div>
+                  <div style="position:absolute; left:0; right:0; bottom:0; padding:28px 32px;">
+                    <h4 style="margin:0 0 6px; font-size:1.6em; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.5);">{{ m.name }}</h4>
+                    <div style="color:#ffd9a3; font-weight:700; margin:0 0 10px; font-size:1.08em;">{{ m.role }}</div>
+                    <p style="margin:0; color:rgba(255,255,255,.92); font-size:1.08em; line-height:1.5; max-width:60ch;">{{ m.bio }}</p>
                   </div>
                 </div>
-              </div>
+              </sc-for>
+            </div>
+
+            <!-- prev / next -->
+            <button onClick="{{ prevTeam }}" aria-label="Previous" style="position:absolute; top:calc(210px - 26px); left:16px; width:52px; height:52px; border-radius:50%; background:rgba(251,248,242,.92); border:2px solid var(--line,#ddd4c6); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--fg,#2c2824); box-shadow:0 4px 14px rgba(0,0,0,.12);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+            <button onClick="{{ nextTeam }}" aria-label="Next" style="position:absolute; top:calc(210px - 26px); right:16px; width:52px; height:52px; border-radius:50%; background:rgba(251,248,242,.92); border:2px solid var(--line,#ddd4c6); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--fg,#2c2824); box-shadow:0 4px 14px rgba(0,0,0,.12);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+          </div>
+
+          <!-- dots -->
+          <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:22px;">
+            <sc-for list="{{ team }}" as="m" hint-placeholder-count="7">
+              <button onClick="{{ m.goto }}" aria-label="Go to slide" style="{{ m.dotStyle }}"></button>
             </sc-for>
           </div>
         </section>
@@ -1127,7 +1142,7 @@ class Component extends DCLogic {
     currentVideo: 'Seated Balance & Breathing',
     activeCaption: 'Sit tall, feet flat on the floor, and breathe in slowly through your nose.',
     doneLessons: { '0-0': true, '0-1': true, '1-0': false },
-    hoveredTeam: null
+    teamIdx: 0
   };
 
   questions = [
@@ -1216,7 +1231,7 @@ class Component extends DCLogic {
 
   teamData = [
     { initials:'MT', name:'Dr.Miranda Ting', role:'Lead UX & Accessibility Designer', bio:'Designs every screen around older eyes and hands \u2014 big targets, calm color, and no dead ends.' },
-    { initials:'KR', name:'Ken Ryu', role:'Head Martial Arts Instructor', bio:'Adapts traditional Jujutsu, Tai Chi, and Qigong into safe, gentle movements anyone can follow.' },
+    { initials:'KR', name:'Kenneth Brake', role:'Head Martial Arts Instructor', bio:'Adapts traditional Jujutsu, Tai Chi, and Qigong into safe, gentle movements anyone can follow.' },
     { initials:'HM', name:'Dr.Hannah Mak, RN', role:'Health & Safety Lead', bio:'Built the health check-in that keeps every session matched to your body and abilities.' },
     { initials:'MD', name:'Dr. Mai Anh Doan', role:'Communications & Pedagogy', bio:'Writes clear, warm instruction so techniques are easy to understand and repeat at home.' },
     { initials:'BD', name:'Dr. Benny Davidson', role:'Community Impact', bio:'Measures how the program strengthens balance, confidence, and connection over time.' },
@@ -1262,6 +1277,15 @@ class Component extends DCLogic {
   stopCarousel() { if (this._carousel) { clearInterval(this._carousel); this._carousel = null; } }
   bumpCarousel(i) { this.setState({ featureIdx: i }); if (this._carousel) this.startCarousel(); }
 
+  startTeamCarousel() {
+    this.stopTeamCarousel();
+    this._teamCarousel = setInterval(() => {
+      this.setState(st => ({ teamIdx: (st.teamIdx + 1) % this.teamData.length }));
+    }, 5000);
+  }
+  stopTeamCarousel() { if (this._teamCarousel) { clearInterval(this._teamCarousel); this._teamCarousel = null; } }
+  bumpTeamCarousel(i) { this.setState({ teamIdx: i }); if (this._teamCarousel) this.startTeamCarousel(); }
+
   componentDidMount() {
     try {
       this._mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -1269,11 +1293,13 @@ class Component extends DCLogic {
       this._mq.addEventListener('change', this._mqHandler);
     } catch (e) {}
     this.startCarousel();
+    this.startTeamCarousel();
   }
 
   componentWillUnmount() {
     try { if (this._mq) this._mq.removeEventListener('change', this._mqHandler); } catch (e) {}
     this.stopCarousel();
+    this.stopTeamCarousel();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -1800,17 +1826,24 @@ class Component extends DCLogic {
       onLogin: s.screen === 'login',
       loggedOut: !s.loggedIn,
       team: this.teamData.map((m, i) => {
-        const active = s.hoveredTeam === i;
-        const any = s.hoveredTeam !== null && s.hoveredTeam !== undefined;
+        const active = s.teamIdx === i;
+        const offset = i - s.teamIdx;
         return {
           ...m,
           bg: this.teamColors[i % this.teamColors.length],
           slotId: 'team-photo-' + i,
-          onEnter: () => this.setState({ hoveredTeam: i }),
-          onLeave: () => this.setState({ hoveredTeam: null }),
-          cardStyle: 'position:relative; flex:' + (active ? '6.5' : (any ? '0.85' : '1')) + ' 1 0; min-width:64px; height:100%; border-radius:18px; overflow:hidden; border:2px solid var(--line,#ddd4c6); cursor:pointer; transition:flex .45s cubic-bezier(.4,0,.2,1);',
-          nameStyle: 'margin:0; font-size:' + (active ? '1.5em' : '1.15em') + '; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 2px 8px rgba(0,0,0,.5); transition:font-size .3s ease;',
-          detailStyle: 'overflow:hidden; max-width:520px; max-height:' + (active ? '260px' : '0') + '; opacity:' + (active ? '1' : '0') + '; transition:max-height .45s ease, opacity .35s ease;'
+          goto: () => this.bumpTeamCarousel(i),
+          slideStyle: {
+            position:'absolute', inset:0,
+            opacity: active ? 1 : 0,
+            transform: 'translateX(' + (offset * 6) + '%) scale(' + (active ? 1 : 0.96) + ')',
+            pointerEvents: active ? 'auto' : 'none',
+            transition: 'opacity .55s ease, transform .55s ease'
+          },
+          dotStyle: {
+            height:'12px', width: active ? '38px' : '12px', borderRadius:'99px', border:'none', cursor:'pointer', padding:0,
+            background: active ? accent : 'var(--line,#ddd4c6)', transition:'width .35s ease, background .35s ease'
+          }
         };
       }),
       students: [
@@ -1870,6 +1903,10 @@ class Component extends DCLogic {
       nextFeature: () => this.bumpCarousel((s.featureIdx + 1) % this.featuresData.length),
       pauseCarousel: () => this.stopCarousel(),
       resumeCarousel: () => this.startCarousel(),
+      prevTeam: () => this.bumpTeamCarousel((s.teamIdx - 1 + this.teamData.length) % this.teamData.length),
+      nextTeam: () => this.bumpTeamCarousel((s.teamIdx + 1) % this.teamData.length),
+      pauseTeamCarousel: () => this.stopTeamCarousel(),
+      resumeTeamCarousel: () => this.startTeamCarousel(),
       openFeatured: () => this.setState({ screen:'player', currentVideo:'Seated Balance & Breathing', accessOpen:false, playing:false }),
 
       hasTier: s.hasTier, tier,
