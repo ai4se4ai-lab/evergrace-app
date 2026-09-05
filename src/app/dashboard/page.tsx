@@ -15,8 +15,8 @@ import { Card, StatCard } from "@/components/ui/card";
 import { buttonClass } from "@/components/ui/button";
 import { VideoCard } from "@/components/video-card";
 import { getViewer } from "@/lib/auth";
-import { PLAN_UNLOCKS, TRACK_LABEL } from "@/lib/domain";
-import { getDashboardData } from "@/lib/queries";
+import { TRACK_LABEL } from "@/lib/domain";
+import { getDashboardData, getPlanCatalog } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Your dashboard" };
@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   const viewer = await getViewer();
   if (!viewer) redirect("/login?next=/dashboard");
 
-  const data = await getDashboardData(viewer);
+  const [data, planCatalog] = await Promise.all([getDashboardData(viewer), getPlanCatalog()]);
   const firstName = viewer.name?.split(" ")[0] ?? "there";
 
   return (
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
           <h2 className="m-0 mb-1.5 text-[1.35em]">Your access level</h2>
           <p className="m-0 mb-4 text-[1.02em] text-muted">Controls which videos you can watch.</p>
           <PlanBadge plan={viewer.plan} className="self-start text-[0.95em]" />
-          <p className="mb-5 mt-3.5 text-[1.02em] text-muted">{PLAN_UNLOCKS[viewer.plan]}</p>
+          <p className="mb-5 mt-3.5 text-[1.02em] text-muted">{planCatalog[viewer.plan].unlocks}</p>
 
           {viewer.plan === "PREMIUM" ? (
             <p className="m-0 mb-4 mt-auto rounded-control bg-success-soft px-4 py-3.5 font-bold text-[1.02em] text-success">

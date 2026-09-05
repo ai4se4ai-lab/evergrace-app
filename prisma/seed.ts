@@ -349,12 +349,34 @@ Warm the hands first if they are stiff — under a running tap is fine. Cold joi
   },
 ];
 
+const plans = [
+  { key: "BASIC", price: "Free", unlocks: "Free videos only.", perks: ["All free videos", "Progress tracking", "Health check-in"] },
+  {
+    key: "MEMBER",
+    price: "$9 / mo",
+    unlocks: "Free and Members-only videos.",
+    perks: ["Everything in Basic", "Members-only classes", "Subscribe to masters & levels"],
+  },
+  {
+    key: "PREMIUM",
+    price: "$19 / mo",
+    unlocks: "Everything, including premium masterclasses.",
+    perks: ["Everything in Member", "Premium masterclasses", "Early access to new videos"],
+  },
+] as const;
+
 // ---------------------------------------------------------------------------
 // Seed
 // ---------------------------------------------------------------------------
 
 async function main() {
   console.log("Seeding EverGrace…");
+
+  // -- plan catalog ----------------------------------------------------------
+  for (const [i, p] of plans.entries()) {
+    const data = { price: p.price, unlocks: p.unlocks, perks: JSON.stringify(p.perks), order: i };
+    await prisma.plan.upsert({ where: { key: p.key }, update: data, create: { key: p.key, ...data } });
+  }
 
   // -- categories / masters / levels ---------------------------------------
   const categoryByName = new Map<string, string>();

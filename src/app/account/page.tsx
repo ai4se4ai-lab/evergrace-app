@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/card";
 import { getViewer } from "@/lib/auth";
 import { billing } from "@/lib/billing";
 import { prisma } from "@/lib/db";
-import { PLAN_PERKS, PLAN_PRICE, PLAN_UNLOCKS, TRACK_DESCRIPTION, TRACK_LABEL } from "@/lib/domain";
+import { TRACK_DESCRIPTION, TRACK_LABEL } from "@/lib/domain";
+import { getPlanCatalog } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Your account" };
 
@@ -23,9 +24,10 @@ export default async function AccountPage({
   const viewer = await getViewer();
   if (!viewer) redirect("/login?next=/account");
 
-  const [{ upgraded, cancelled }, checkIn] = await Promise.all([
+  const [{ upgraded, cancelled }, checkIn, planCatalog] = await Promise.all([
     searchParams,
     prisma.healthCheckIn.findUnique({ where: { userId: viewer.id } }),
+    getPlanCatalog(),
   ]);
 
   return (
@@ -44,7 +46,7 @@ export default async function AccountPage({
       ) : null}
       {cancelled ? (
         <p className="mb-6 rounded-card border-2 border-line bg-surface px-5 py-4 text-muted">
-          No changes were made — you’re still on the {PLAN_PRICE[viewer.plan]} plan.
+          No changes were made — you’re still on the {planCatalog[viewer.plan].price} plan.
         </p>
       ) : null}
 
@@ -52,9 +54,9 @@ export default async function AccountPage({
         <Card className="flex flex-col">
           <h2 className="m-0 mb-1.5 text-[1.35em]">Your plan</h2>
           <PlanBadge plan={viewer.plan} className="mt-2 self-start text-[0.95em]" />
-          <p className="mt-3.5 text-[1.02em] text-muted">{PLAN_UNLOCKS[viewer.plan]}</p>
+          <p className="mt-3.5 text-[1.02em] text-muted">{planCatalog[viewer.plan].unlocks}</p>
           <ul role="list" className="mb-6 mt-2 flex list-none flex-col gap-2 p-0">
-            {PLAN_PERKS[viewer.plan].map((perk) => (
+            {planCatalog[viewer.plan].perks.map((perk) => (
               <li key={perk} className="flex gap-2">
                 <span className="text-success" aria-hidden>
                   ✓

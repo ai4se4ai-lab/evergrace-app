@@ -204,7 +204,7 @@ function PostDialog({
                   placeholder="Balance"
                 />
                 <datalist id="blog-categories">
-                  {[...categoryNames, "Community", "Wellbeing"].map((name) => (
+                  {categoryNames.map((name) => (
                     <option key={name} value={name} />
                   ))}
                 </datalist>

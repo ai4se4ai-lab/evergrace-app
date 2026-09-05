@@ -22,6 +22,26 @@ import { serializeTranscript } from "./transcript";
 import type { RosterFilter } from "./validation";
 
 // ---------------------------------------------------------------------------
+// Billing
+// ---------------------------------------------------------------------------
+
+export type PlanCatalogEntry = { price: string; perks: string[]; unlocks: string };
+
+/** Admin-editable pricing/perks copy for every plan, keyed by Plan. */
+export async function getPlanCatalog(): Promise<Record<Plan, PlanCatalogEntry>> {
+  const rows = await prisma.plan.findMany({ orderBy: { order: "asc" } });
+  const catalog = {} as Record<Plan, PlanCatalogEntry>;
+  for (const row of rows) {
+    catalog[row.key as Plan] = {
+      price: row.price,
+      unlocks: row.unlocks,
+      perks: JSON.parse(row.perks) as string[],
+    };
+  }
+  return catalog;
+}
+
+// ---------------------------------------------------------------------------
 // Catalog
 // ---------------------------------------------------------------------------
 

@@ -84,6 +84,25 @@ model HealthCheckIn {
 }
 
 // ---------------------------------------------------------------------------
+// Billing
+// ---------------------------------------------------------------------------
+
+/// Admin-editable pricing/perks shown for each Plan (spec §6.6). `key` is one
+/// of the Plan enum values (see the header comment above); the *actual*
+/// amount charged still comes from Stripe (src/lib/billing.ts) — this is
+/// display copy only, kept in the DB so it can't silently drift from what
+/// staff intend to show without a code deploy.
+model Plan {
+  key     String @id // Plan
+  price   String // e.g. "Free", "$9 / mo"
+  perks   String @default("[]") // JSON string array
+  unlocks String
+  order   Int    @default(0)
+
+  @@index([order])
+}
+
+// ---------------------------------------------------------------------------
 // Catalog
 // ---------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/site-header";
 import { getViewer } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { PREFERENCES_COOKIE, parsePreferences } from "@/lib/preferences";
+import { getPlanCatalog } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: {
@@ -33,7 +34,7 @@ export const viewport: Viewport = {
 const themeScript = `(function(){try{var r=document.documentElement;if(r.getAttribute("data-theme-pref")!=="auto")return;var d=window.matchMedia("(prefers-color-scheme: dark)").matches;r.setAttribute("data-theme",d?"dark":"light");}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [store, viewer] = await Promise.all([cookies(), getViewer()]);
+  const [store, viewer, planCatalog] = await Promise.all([cookies(), getViewer(), getPlanCatalog()]);
 
   // A signed-in member's saved preferences win over the cookie; the cookie is
   // the only source for anonymous visitors (spec §7).
@@ -71,7 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </Script>
       </head>
       <body>
-        <AppProviders preferences={preferences} viewer={viewer}>
+        <AppProviders preferences={preferences} viewer={viewer} planCatalog={planCatalog}>
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-control focus:bg-accent focus:px-5 focus:py-3 focus:font-bold focus:text-white"

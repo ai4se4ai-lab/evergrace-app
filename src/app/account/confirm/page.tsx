@@ -5,7 +5,8 @@ import { confirmMockPlanChange } from "@/actions/billing";
 import { Button } from "@/components/ui/button";
 import { getViewer } from "@/lib/auth";
 import { billing } from "@/lib/billing";
-import { PLANS, PLAN_LABEL, PLAN_PRICE, type Plan } from "@/lib/domain";
+import { PLANS, PLAN_LABEL, type Plan } from "@/lib/domain";
+import { getPlanCatalog } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Confirm your plan" };
 
@@ -26,6 +27,7 @@ export default async function ConfirmPlanPage({
   const { plan: planParam, returnTo } = await searchParams;
   if (!planParam || !PLANS.includes(planParam as Plan)) notFound();
   const plan = planParam as Plan;
+  const planCatalog = await getPlanCatalog();
 
   async function confirm() {
     "use server";
@@ -38,7 +40,7 @@ export default async function ConfirmPlanPage({
       <div className="rounded-[20px] border-2 border-line bg-surface p-10">
         <p className="m-0 mb-2 font-semibold text-muted">Local billing mode</p>
         <h1 className="m-0 mb-4 text-[2em]">
-          Switch to {PLAN_LABEL[plan]} ({PLAN_PRICE[plan]})?
+          Switch to {PLAN_LABEL[plan]} ({planCatalog[plan].price})?
         </h1>
         <p className="mb-8 text-[1.1em] text-muted">
           Stripe isn’t configured, so no payment is taken. Confirming applies the plan change

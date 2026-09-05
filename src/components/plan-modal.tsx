@@ -11,13 +11,12 @@ import {
   ACCESS_LABEL,
   PLANS,
   PLAN_LABEL,
-  PLAN_PERKS,
-  PLAN_PRICE,
   planRank,
   requiredPlanFor,
   type AccessLevel,
   type Plan,
 } from "@/lib/domain";
+import type { PlanCatalogEntry } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 type LockedContext = { title: string; access: AccessLevel; returnTo?: string };
@@ -38,10 +37,12 @@ export function usePlanModal(): PlanModalContextValue {
 export function PlanModalProvider({
   currentPlan,
   signedIn,
+  planCatalog,
   children,
 }: {
   currentPlan: Plan;
   signedIn: boolean;
+  planCatalog: Record<Plan, PlanCatalogEntry>;
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,6 +64,7 @@ export function PlanModalProvider({
         currentPlan={currentPlan}
         signedIn={signedIn}
         locked={locked}
+        planCatalog={planCatalog}
       />
     </PlanModalContext.Provider>
   );
@@ -74,12 +76,14 @@ function PlanModal({
   currentPlan,
   signedIn,
   locked,
+  planCatalog,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   currentPlan: Plan;
   signedIn: boolean;
   locked: LockedContext | null;
+  planCatalog: Record<Plan, PlanCatalogEntry>;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -159,10 +163,10 @@ function PlanModal({
                     ) : null}
                   </div>
                   <div className="mb-2.5 mt-0.5 text-[1.6em] font-extrabold text-accent-dark">
-                    {PLAN_PRICE[plan]}
+                    {planCatalog[plan].price}
                   </div>
                   <ul role="list" className="mb-[18px] flex list-none flex-col gap-2 p-0">
-                    {PLAN_PERKS[plan].map((perk) => (
+                    {planCatalog[plan].perks.map((perk) => (
                       <li key={perk} className="flex items-start gap-2">
                         <CheckIcon className="mt-1 flex-none text-success" />
                         {perk}

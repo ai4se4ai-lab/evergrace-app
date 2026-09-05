@@ -205,12 +205,6 @@ export const PLAN_LABEL: Record<Plan, string> = {
   PREMIUM: "Premium",
 };
 
-export const PLAN_PRICE: Record<Plan, string> = {
-  BASIC: "Free",
-  MEMBER: "$9 / mo",
-  PREMIUM: "$19 / mo",
-};
-
 export const ACCESS_LABEL: Record<AccessLevel, string> = {
   FREE: "Free",
   MEMBERS: "Members",
@@ -255,17 +249,9 @@ export const TRACK_DESCRIPTION: Record<Track, string> = {
     "You’re ready for free-standing practice. We’ll still keep every movement slow, gentle, and controlled.",
 };
 
-export const PLAN_PERKS: Record<Plan, string[]> = {
-  BASIC: ["All free videos", "Progress tracking", "Health check-in"],
-  MEMBER: ["Everything in Basic", "Members-only classes", "Subscribe to masters & levels"],
-  PREMIUM: ["Everything in Member", "Premium masterclasses", "Early access to new videos"],
-};
-
-export const PLAN_UNLOCKS: Record<Plan, string> = {
-  BASIC: "Free videos only.",
-  MEMBER: "Free and Members-only videos.",
-  PREMIUM: "Everything, including premium masterclasses.",
-};
+// Price, perks, and unlocks copy for each plan are DB-backed — see
+// getPlanCatalog() in ./queries.ts. Only the enum→label map stays static
+// here, alongside the other display-label maps below.
 
 export const MOOD_LABEL: Record<number, string> = {
   1: "Stiff and tired — we’ll keep it very gentle today.",
