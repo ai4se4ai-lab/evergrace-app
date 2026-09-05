@@ -10,6 +10,11 @@ at a local Postgres instance (see [DEPLOYMENT.md](./DEPLOYMENT.md) for both
 options). No API keys required; documented in-process fallbacks for email,
 billing, and video hosting — see [INTEGRATIONS.md](./INTEGRATIONS.md).
 
+`docker compose up` runs the app itself in live-reload dev mode (source
+bind-mounted, `next dev` inside the container) — edits under `src/` take
+effect without a rebuild. Rebuild (`docker compose build app`) only after
+changing `package.json` or `prisma/schema.prisma`.
+
 ## Install and run
 
 ```bash

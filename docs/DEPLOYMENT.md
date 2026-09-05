@@ -55,19 +55,39 @@ before going to production, and use `migrate deploy` from then on.
 
 ## Docker Compose (local)
 
-The repo ships a `docker-compose.yml` with `db` (Postgres 16) and `app` (the
-Next.js production build). Schema is applied by Postgres itself: `db` mounts
-`database/init.sql` into `/docker-entrypoint-initdb.d/`, which Postgres runs
-automatically the first time it initializes an empty data volume — there is
-no separate migration step or service to wait on. `db` publishes no host
-port — it's reachable only from `app`/`tools` on the internal
-`evergrace-net` network. Add a port mapping to `db` temporarily if you need
-a local DB client for debugging.
+The repo ships a `docker-compose.yml` with `db` (Postgres 16) and `app`. By
+default `app` builds the Dockerfile's `dev` target (`next dev`) with the repo
+bind-mounted into the container at `/app`, so edits to `src/`, `prisma/`, etc.
+on the host take effect immediately — no rebuild, no restart. `node_modules`
+and `.next` are excluded from the bind mount via anonymous volumes, so the
+container keeps its own Linux-built `node_modules` (from `npm ci` in the
+image) instead of whatever's on the host. Schema is applied by Postgres
+itself: `db` mounts `database/init.sql` into `/docker-entrypoint-initdb.d/`,
+which Postgres runs automatically the first time it initializes an empty data
+volume — there is no separate migration step or service to wait on. `db`
+publishes no host port — it's reachable only from `app`/`tools` on the
+internal `evergrace-net` network. Add a port mapping to `db` temporarily if
+you need a local DB client for debugging.
 
 ```bash
-docker compose build
 docker compose up -d db app
 curl http://localhost:3000/api/health
+```
+
+Changed `package.json` or the Prisma schema? `npm ci` and `prisma generate`
+only run at image build time, so rebuild the image after either:
+
+```bash
+docker compose build app
+```
+
+To run the production image instead (what actually ships), point `app` at
+the `runner` target and drop its `volumes:` — see the comment on `app` in
+`docker-compose.yml`:
+
+```bash
+docker compose build app
+docker compose up -d db app
 ```
 
 `/docker-entrypoint-initdb.d` scripts only run against a brand-new volume —

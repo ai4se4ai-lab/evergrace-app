@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ReadAloudHeading } from "@/components/preferences-provider";
+import { TeamCarousel } from "@/components/team-carousel";
 import { Eyebrow } from "@/components/ui/badge";
 import { aboutPillars } from "@/content/site";
 import { prisma } from "@/lib/db";
@@ -13,6 +14,10 @@ export const metadata: Metadata = { title: "About us" };
 export const dynamic = "force-dynamic";
 
 const PILLAR_WORD = ["Safe", "Clear", "Kind"];
+
+// Placeholders for the COMP 370 students to fill in with their own info —
+// not backed by the database, unlike the stakeholders/leadership team below.
+const DEVELOPMENT_TEAM_PLACEHOLDERS = 3;
 
 export default async function AboutPage() {
   const team = await prisma.teamMember.findMany({ orderBy: { order: "asc" } });
@@ -51,34 +56,41 @@ export default async function AboutPage() {
 
       <section className="mx-auto max-w-[1100px] px-7 pb-[90px] pt-10">
         <h2 className="m-0 mb-1.5 text-center text-[2.1em]">The people behind the practice</h2>
-        <p className="mb-[34px] text-center text-[1.2em] text-muted">
+        <p className="mb-[50px] text-center text-[1.2em] text-muted">
           A team of instructors, nurses, designers, and researchers.
         </p>
 
-        <ul role="list" className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
-          {team.map((member) => (
+        <h3 className="m-0 mb-1.5 text-center text-[1.5em]">Development Team</h3>
+        <p className="mb-7 text-center text-[1.08em] text-muted">
+          The COMP 370 students who built this platform.
+        </p>
+        <ul role="list" className="mb-16 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: DEVELOPMENT_TEAM_PLACEHOLDERS }, (_, i) => (
             <li
-              key={member.id}
+              key={i}
               className="flex flex-col overflow-hidden rounded-[18px] border-2 border-line bg-surface"
             >
-              <div className="placeholder-art flex aspect-[4/5] items-center justify-center">
-                <span
-                  className="flex h-20 w-20 items-center justify-center rounded-full bg-accent text-[1.6em] font-extrabold text-white"
-                  aria-hidden
-                >
-                  {member.initials || member.name.slice(0, 2).toUpperCase()}
-                </span>
+              <div className="placeholder-art flex aspect-[4/5] items-center justify-center text-[1.02em] font-semibold text-muted">
+                Drop your photo
               </div>
               <div className="px-[22px] pb-6 pt-5">
-                <h3 className="m-0 mb-1 text-[1.3em]">{member.name}</h3>
+                <h4 className="m-0 mb-1 text-[1.3em]">Your Name</h4>
                 <div className="mb-3 text-[1.02em] font-semibold text-accent-dark">
-                  {member.role}
+                  Your Role · COMP 370
                 </div>
-                <p className="m-0 text-[1.08em] text-muted">{member.bio}</p>
+                <p className="m-0 text-[1.08em] text-muted">
+                  Add a short line about who you are and what you worked on.
+                </p>
               </div>
             </li>
           ))}
         </ul>
+
+        <h3 className="m-0 mb-1.5 text-center text-[1.5em]">Stakeholders &amp; Leadership Team</h3>
+        <p className="mb-7 text-center text-[1.08em] text-muted">
+          The instructors, clinicians, and faculty guiding the program.
+        </p>
+        <TeamCarousel members={team} />
       </section>
     </main>
   );

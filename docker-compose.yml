@@ -49,6 +49,10 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       db:
         condition: service_healthy
@@ -58,12 +62,29 @@ services:
   app:
     build:
       context: .
-      target: runner
+      # `dev` runs `next dev` against the source bind-mounted below, so
+      # edits on the host take effect without a rebuild. Point this at
+      # `runner` (and drop the volumes below) to run the production image
+      # instead.
+      target: dev
     restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://evergrace:evergrace@db:5432/evergrace
+      # Docker Desktop bind mounts (notably on Windows/macOS) don't forward
+      # host filesystem events into the container, so webpack's native
+      # watcher never fires on host edits. Polling works everywhere at the
+      # cost of a bit of CPU.
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - .:/app
+      # Anonymous volumes: keep the image's Linux-built node_modules and
+      # the container's own .next cache from being hidden by the bind
+      # mount above, which would otherwise paper over them with whatever
+      # (or nothing) exists at those paths on the host.
+      - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     depends_on:

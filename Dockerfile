@@ -17,6 +17,20 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+# ---- dev: live-reload dev server, source bind-mounted at runtime ---------
+# Used by docker-compose.yml's `app` service so edits under src/, prisma/,
+# etc. on the host are picked up by `next dev` immediately, no rebuild. The
+# COPY below only seeds the image for a from-scratch `docker compose build`;
+# once the container is running, the compose bind mount covers it.
+FROM node:20-alpine AS dev
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+EXPOSE 3000
+CMD ["sh", "-c", "npx prisma generate && npm run dev"]
+
 # ---- runner: minimal production image -------------------------------------
 FROM node:20-alpine AS runner
 WORKDIR /app
